@@ -1,0 +1,184 @@
+{
+ "lab_run_id": "l_002",
+ "variant_set_id": "vs_01",
+ "product": "Tailored corset gown with draped hip",
+ "winner": {
+  "variant_id": 3,
+  "label": "On model, 3/4 portrait",
+  "lift_pct": 22.0,
+  "call": "clear"
+ },
+ "variants": [
+  {
+   "variant_id": 3,
+   "label": "On model, 3/4 portrait",
+   "image_url": "https://cdn.shopify.com/s/files/1/0288/8620/4498/files/Look4ecom6.jpg?v=1790866658",
+   "features": [
+    "studio background",
+    "model",
+    "close crop",
+    "eye contact"
+   ],
+   "score": 0.5,
+   "ci": [
+    0.46,
+    0.54
+   ],
+   "rank": 1,
+   "by_segment": {
+    "Champions": 0.56,
+    "Loyal": 0.53,
+    "New": 0.5,
+    "At risk": 0.46,
+    "Hibernating": 0.45
+   }
+  },
+  {
+   "variant_id": 2,
+   "label": "On model, full length",
+   "image_url": "https://cdn.shopify.com/s/files/1/0288/8620/4498/files/Look_4_ecom_55605420-03ea-41ff-b61a-129db76037cb.jpg?v=1790866657",
+   "features": [
+    "studio background",
+    "model",
+    "full length"
+   ],
+   "score": 0.41,
+   "ci": [
+    0.36,
+    0.45
+   ],
+   "rank": 2,
+   "by_segment": {
+    "Champions": 0.46,
+    "Loyal": 0.44,
+    "New": 0.41,
+    "At risk": 0.37,
+    "Hibernating": 0.38
+   }
+  },
+  {
+   "variant_id": 4,
+   "label": "Detail close-up",
+   "image_url": "https://cdn.shopify.com/s/files/1/0288/8620/4498/files/Look4ecom3.jpg?v=1790866658",
+   "features": [
+    "studio background",
+    "model",
+    "detail crop"
+   ],
+   "score": 0.39,
+   "ci": [
+    0.33,
+    0.45
+   ],
+   "rank": 3,
+   "by_segment": {
+    "Champions": 0.43,
+    "Loyal": 0.41,
+    "New": 0.39,
+    "At risk": 0.35,
+    "Hibernating": 0.36
+   }
+  },
+  {
+   "variant_id": 1,
+   "label": "Product only, white background",
+   "image_url": "https://cdn.shopify.com/s/files/1/0288/8620/4498/files/STONETAILOREDCORSETGOWNWITHDRAPEDHIP.jpg?v=1791799355",
+   "features": [
+    "white background",
+    "no model",
+    "product only"
+   ],
+   "score": 0.36,
+   "ci": [
+    0.31,
+    0.41
+   ],
+   "rank": 4,
+   "by_segment": {
+    "Champions": 0.4,
+    "Loyal": 0.38,
+    "New": 0.36,
+    "At risk": 0.31,
+    "Hibernating": 0.33
+   }
+  }
+ ],
+ "reasons": [
+  {
+   "variant_id": 3,
+   "text": "eye contact makes it feel personal and trustworthy",
+   "share": 0.41
+  },
+  {
+   "variant_id": 3,
+   "text": "easy to picture wearing it to an event",
+   "share": 0.33
+  },
+  {
+   "variant_id": 2,
+   "text": "shows the full drape and length",
+   "share": 0.3
+  }
+ ],
+ "objections": [
+  {
+   "variant_id": 1,
+   "text": "can't tell how it fits on a body",
+   "share": 0.47
+  },
+  {
+   "variant_id": 2,
+   "text": "feels like a standard catalogue shot",
+   "share": 0.28
+  }
+ ],
+ "comments": [
+  {
+   "persona": "Maya, 30s, At risk",
+   "variant_id": 3,
+   "text": "This one feels like a person I could be. I would click."
+  },
+  {
+   "persona": "Imani, 20s, New",
+   "variant_id": 3,
+   "text": "Close and confident. This is the one I would save."
+  },
+  {
+   "persona": "Claire, 40s, Champions",
+   "variant_id": 2,
+   "text": "Nice, but I have seen this layout everywhere."
+  },
+  {
+   "persona": "Hannah, 50s, Hibernating",
+   "variant_id": 3,
+   "text": "I would look twice at this at that price."
+  }
+ ],
+ "lessons_used": [
+  "Model-worn beats product-only for every segment (+0.12, l_001)",
+  "Full length shots were overrated by 25% against real results (l_001 calibration)",
+  "Close crops with eye contact convert best for At risk and New"
+ ],
+ "lessons_learned": [
+  "3/4 portraits outrank full-length studio shots by 0.09",
+  "Detail close-ups need a full-length image alongside them"
+ ],
+ "calibration": {
+  "mean_abs_error_pct": 21.0,
+  "n_observed": 2
+ },
+ "working": [
+  "3/4 portrait now clearly leads (0.50 vs 0.41)",
+  "At risk score rose from 0.33 to 0.46 on the winning variant"
+ ],
+ "fix": [
+  "Product-only is last for every segment",
+  "Add a lifestyle variant: nobody has tested a street setting yet"
+ ],
+ "costs": {
+  "sie_usd": 0.0,
+  "tinfoil_usd": 0.012,
+  "darkbloom_usd": 0.021,
+  "frontier_equiv_usd": 0.4
+ }
+}
