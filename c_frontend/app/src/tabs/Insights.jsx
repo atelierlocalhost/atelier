@@ -1,3 +1,5 @@
+import CompetitorCard from '../components/CompetitorCard'
+
 export default function Insights({ run }) {
   const { segments, working, fix } = run.insights
   return (
@@ -23,15 +25,8 @@ export default function Insights({ run }) {
       </section>
       <section>
         <h3>Competitors</h3>
-        <div className="grid">
-          {run.competitors.map((c) => (
-            <div className="card" key={c.url}>
-              <strong>{c.name}</strong>
-              <p className="muted">{c.url}</p>
-              <p>Price gap: {c.price_gap_pct}%</p>
-              <ul>{c.promos.map((p) => <li key={p}>{p}</li>)}</ul>
-            </div>
-          ))}
+        <div className="grid wide">
+          {run.competitors.map((c) => <CompetitorCard key={c.url} c={c} />)}
         </div>
       </section>
     </>
