@@ -27,8 +27,8 @@ const SHOP_SECTIONS = [
   { id: 'actions', label: 'Actions' },
   { id: 'social', label: 'Social and email' },
   { id: 'lab', label: 'Shopper lab' },
-  { id: 'assistant', label: 'Assistant and reports' },
   { id: 'compare', label: 'Compare runs' },
+  { id: 'assistant', label: 'Assistant and reports' },
   { id: 'reports', label: 'Weekly reports' },
   { id: 'connect', label: 'Connections' },
 ]
@@ -157,8 +157,8 @@ export default function App() {
                 </>
               )}
               <section id="sec-lab" className="shop-section"><h2>Shopper lab</h2><LabTab clientId={clientId} /></section>
-              <section id="sec-assistant" className="shop-section"><h2>Assistant and reports</h2><Assistant run={run} /></section>
               <section id="sec-compare" className="shop-section"><h2>Compare runs</h2><Compare runs={runs} /></section>
+              <section id="sec-assistant" className="shop-section"><h2>Assistant and reports</h2><Assistant run={run} /></section>
               <section id="sec-reports" className="shop-section"><h2>Weekly reports</h2><WeeklyReports client={client} /></section>
               <section id="sec-connect" className="shop-section"><h2>Connections</h2><Connect /></section>
             </>

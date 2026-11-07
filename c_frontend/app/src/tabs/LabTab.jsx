@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getLabVariants, startLabRun, postLabOutcome, USE_MOCK } from '../api'
 import mock1 from '../mock_lab.json'
+import RetryImg from '../components/RetryImg'
 
 const SEGMENTS = ['Champions', 'Loyal', 'New', 'At risk', 'Hibernating']
 const STEPS = [
@@ -43,7 +44,7 @@ function Leaderboard({ result }) {
         {result.variants.map((v) => (
           <div className="lb-row" key={v.variant_id}>
             <span className="lb-rank">{v.rank}</span>
-            <img src={v.image_url} alt={v.label} referrerPolicy="no-referrer" loading="lazy" />
+            <RetryImg src={v.image_url} alt={v.label} />
             <div className="lb-main">
               <strong>{v.label}</strong>
               <div className="lb-axis">
@@ -119,10 +120,10 @@ function Result({ result }) {
             : 'Intervals overlap, so no winner is named. Add a stronger variant or more personas.'}
         </p>
       </div>
-      <section className="cols">
-        <Leaderboard result={result} />
-        <Heatmap result={result} />
-      </section>
+      <Leaderboard result={result} />
+      <div style={{ height: 'var(--space-3)' }} />
+      <Heatmap result={result} />
+      <div style={{ height: 'var(--space-3)' }} />
       <section className="cols">
         <Shares title="Why shoppers liked it" items={result.reasons} variants={result.variants} tone="good" />
         <Shares title="What put them off" items={result.objections} variants={result.variants} tone="bad" />
@@ -310,7 +311,7 @@ export default function LabTab({ shopId, clientId }) {
         <div className="variant-row">
           {variants.map((v) => (
             <div className="variant" key={v.variant_id}>
-              <img src={v.image_url} alt={v.label} referrerPolicy="no-referrer" loading="lazy" />
+              <RetryImg src={v.image_url} alt={v.label} />
               <strong>{v.label}</strong>
               <div className="chips">{v.features.map((f) => <span className="pill" key={f}>{f}</span>)}</div>
             </div>
