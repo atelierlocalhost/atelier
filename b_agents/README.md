@@ -10,9 +10,9 @@ Shared memory plus the insights / strategy / social agents. Each agent exposes `
 |---|---|---|---|
 | `insights` | `db_path` (optional `as_of`) | `insights`, `insights_stats` (extra, not in run JSON) | Tinfoil |
 | `strategy` | `insights`, optional `competitors`, `insights_stats`, `next_action_id` | `actions`, `memory_used` | Tinfoil |
-| `social` | optional `actions` | `social` | Darkbloom |
+| `social` | optional `actions` | `social` | Tinfoil (direct client; not routed through `llm.chat`) |
 
-Each agent also returns `<agent>_source: "llm" | "fallback"` (outside the contract) and logs one line per call: `[agent] <name> path=tinfoil|darkbloom|fallback model=... latency=...`.
+Each agent also returns `<agent>_source: "llm" | "fallback"` (outside the contract) and logs one line per call: `[agent] <name> path=tinfoil|fallback model=... latency=...`.
 
 Numbers are computed in pandas (RFM quintiles). The LLM only explains them and only sees aggregates, never names or emails. Without an API key each agent uses a rule-based fallback, so the pipeline always returns valid JSON.
 

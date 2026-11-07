@@ -1,6 +1,9 @@
 """Thin helpers around a_platform.llm for Person B's agents.
 
-Logs one line per call: agent, path (tinfoil / darkbloom / fallback), model, latency.
+All of Person B's agents run on Tinfoil (gpt-oss-120b). insights and strategy go
+through llm.chat; social isn't a Tinfoil task in a_platform's router, so it calls
+the shared Tinfoil client directly (same client, model and cost logging).
+Logs one line per call: agent, path (tinfoil / fallback), model, latency.
 """
 from __future__ import annotations
 
@@ -9,22 +12,30 @@ import os
 import re
 import time
 
-PROVIDER_KEY = {"insights": "TINFOIL_API_KEY", "strategy": "TINFOIL_API_KEY", "social": "DARKBLOOM_API_KEY"}
+ROUTED_TASKS = {"insights", "strategy"}  # Tinfoil tasks in a_platform.llm
+DIRECT_TINFOIL_TASKS = {"social"}
 
 
 class LLMUnavailable(RuntimeError):
     pass
 
 
-def _path_and_model(task: str) -> tuple[str, str]:
+def _tinfoil_model() -> str:
     from a_platform import llm
 
     # .env sets LLM_MODEL=openai/gpt-oss-120b for Cognee's LiteLLM; Tinfoil itself 404s
     # on the prefixed name, so strip it here until a_platform/llm.py does.
     llm.TINFOIL_MODEL = llm.TINFOIL_MODEL.removeprefix("openai/")
-    if task in llm.TINFOIL_TASKS:
-        return "tinfoil", llm.TINFOIL_MODEL
-    return "darkbloom", os.getenv("DARKBLOOM_MODEL", "")
+    return llm.TINFOIL_MODEL
+
+
+def _direct_tinfoil(messages: list[dict]) -> str:
+    from a_platform import llm
+
+    model = _tinfoil_model()
+    resp = llm._tinfoil_client().chat.completions.create(model=model, messages=messages)
+    llm._log_cost("tinfoil", model, getattr(resp.usage, "total_tokens", 0) if resp.usage else 0)
+    return resp.choices[0].message.content or ""
 
 
 def log_call(agent: str, path: str, model: str, started: float, note: str = "") -> None:
@@ -33,21 +44,30 @@ def log_call(agent: str, path: str, model: str, started: float, note: str = "") 
 
 
 def chat(task: str, messages: list[dict], json_mode: bool = False) -> str:
+    if task not in ROUTED_TASKS | DIRECT_TINFOIL_TASKS:
+        raise ValueError(f"unknown task: {task!r}")
     # Fail fast without a key: the Tinfoil client otherwise blocks on attestation retries.
-    key = PROVIDER_KEY.get(task)
-    if key and not os.getenv(key):
-        raise LLMUnavailable(f"{key} not set")
+    if not os.getenv("TINFOIL_API_KEY"):
+        raise LLMUnavailable("TINFOIL_API_KEY not set")
     from a_platform import llm
 
-    path, model = _path_and_model(task)
-    started = time.time()
-    try:
-        out = llm.chat(task, messages, json=json_mode)
-    except Exception as e:
-        log_call(task, path, model, started, f"FAILED: {str(e)[:160]}")
-        raise
-    log_call(task, path, model, started, "ok")
-    return out
+    path, model = "tinfoil", _tinfoil_model()
+    for attempt in (1, 2):
+        started = time.time()
+        try:
+            if task in DIRECT_TINFOIL_TASKS:
+                out = _direct_tinfoil(messages)
+            else:
+                out = llm.chat(task, messages, json=json_mode)
+        except Exception as e:
+            # Tinfoil occasionally drops a request (read timeout / connection error); retry those once.
+            transient = any(s in str(e).lower() for s in ("timed out", "timeout", "connection error"))
+            log_call(task, path, model, started, f"FAILED: {str(e)[:160]}" + ("; retrying" if transient and attempt == 1 else ""))
+            if transient and attempt == 1:
+                continue
+            raise
+        log_call(task, path, model, started, "ok")
+        return out
 
 
 def extract_json(text: str):

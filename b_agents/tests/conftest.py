@@ -10,7 +10,6 @@ def isolated_memory(tmp_path, monkeypatch):
 
     monkeypatch.setenv("MEMORY_BACKEND", "sqlite")
     monkeypatch.delenv("TINFOIL_API_KEY", raising=False)
-    monkeypatch.delenv("DARKBLOOM_API_KEY", raising=False)
     monkeypatch.setattr(memory, "FALLBACK_DB", str(tmp_path / "memory.db"))
     memory.seed_brand()
 

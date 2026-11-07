@@ -1,9 +1,9 @@
-"""Social agent: 3 carousel posts via Darkbloom. No customer data ever goes in.
+"""Social agent: 3 carousel posts via Tinfoil (gpt-oss-120b). No customer data ever goes in.
 
 Reads brand + outcomes memory only (never customers). Uses action titles from
-strategy (no PII) and curated trends/sounds from data/trends.json. Darkbloom may
-not support response_format, so JSON is requested in the prompt, extracted, validated
-and retried once. Falls back to templated posts if the LLM is unavailable.
+strategy (no PII) and curated trends/sounds from data/trends.json. gpt-oss may wrap
+JSON in prose, so JSON is requested in the prompt, extracted, validated and retried
+once. Falls back to templated posts if the LLM is unavailable.
 """
 from __future__ import annotations
 
