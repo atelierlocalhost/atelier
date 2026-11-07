@@ -10,6 +10,9 @@ ctx in:
     variants        [{variant_id, label, image_url, features, caption, price_usd, style?}]
     segments        insights_stats["segments"] (needed only when personas aren't given)
     personas        optional; reuse a previous run's personas to compare runs fairly
+    shopper_lessons "all" (default): top 5 from lab_outcomes via Cognee, lab findings included
+                    "observed": only lessons from real observed results (record_observed);
+                    avoids the lab feeding its own findings back to its shoppers
 ctx out (added): personas, persona_gen_source
 
 Order: persona_gen (if needed) -> lessons from lab_outcomes, read ONCE (top 5) ->
@@ -33,7 +36,11 @@ async def arun(ctx: dict) -> dict:
     generated = not ctx.get("personas")
     if generated:
         ctx.update(await asyncio.to_thread(persona_gen.run, ctx))
-    lessons = await asyncio.to_thread(memory.read, "shopper", "lab_outcomes", LESSON_QUERY, 5)
+    if ctx.get("shopper_lessons", "all") == "observed":
+        lessons = [r["text"] for r in memory.read_records("shopper", "lab_outcomes")
+                   if r.get("type") == "calibration"][:5]
+    else:
+        lessons = await asyncio.to_thread(memory.read, "shopper", "lab_outcomes", LESSON_QUERY, 5)
     history = {p["id"]: [r["text"] for r in memory.read_records("shopper", f"persona:{p['id']}", limit=2)]
                for p in ctx["personas"]}
     reactions = await shopper.run_panel(ctx["personas"], ctx["variants"], lessons, history=history)

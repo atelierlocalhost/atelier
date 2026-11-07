@@ -73,3 +73,9 @@ def test_grouping_shares():
     assert {r["variant_id"] for r in num["reasons"]} == {1, 2, 3, 4}
     assert all(r["text"].startswith("Fabric and craft") and r["share"] == 1.0 for r in num["reasons"])
     assert all(o["text"].startswith("Price and value") for o in num["objections"])
+
+
+def test_validator_accepts_unicode_hyphen_segment():
+    out = lab_analyst.validate_text({"working": ["a", "b", "c"], "fix": ["d", "e", "f"],
+                                     "lessons_learned": ["Studio photos score +41.6% for At\u2011risk shoppers"]})
+    assert out["lessons_learned"] == ["Studio photos score +41.6% for At-risk shoppers"]

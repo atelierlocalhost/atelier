@@ -33,14 +33,17 @@ def ranking(result: dict) -> dict[int, dict]:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--fixture", action="store_true", help="use the lab fixture (the only source until seed_lab.py)")
-    ap.parse_args()
+    ap.add_argument("--lessons", choices=("all", "observed"), default="all",
+                    help="what shoppers see in run 2: all lab_outcomes (default) or only observed-result lessons")
+    args = ap.parse_args()
 
     DEV.mkdir(exist_ok=True)
     started = time.time()
     memory.reset()
     memory.seed_brand()
     ctx = {"lab_run_id": "l_001", "variant_set_id": lab_fixture.VARIANT_SET_ID, "product": lab_fixture.PRODUCT,
-           "variants": lab_fixture.VARIANTS, "segments": lab_fixture.load_segments()}
+           "variants": lab_fixture.VARIANTS, "segments": lab_fixture.load_segments(),
+           "shopper_lessons": args.lessons}
 
     print("\n===== lab run 1 (no lessons) =====")
     run1 = lab_pipeline.run(ctx)
@@ -64,6 +67,8 @@ def main() -> None:
     print("\n===== lab run 2 (same personas, with lessons) =====")
     run2 = lab_pipeline.run({**ctx, "lab_run_id": "l_002"})
     (DEV / "lab2.json").write_text(json.dumps(run2, indent=2))
+    if args.lessons != "all":
+        (DEV / f"lab2_{args.lessons}.json").write_text(json.dumps(run2, indent=2))
 
     r2 = ranking(run2)
     print("\n===== ranking change (run 1 -> run 2) =====")

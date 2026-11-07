@@ -168,15 +168,27 @@ def _fallback_text(num: dict, styles: dict[int, str]) -> dict:
     return {"working": working, "fix": fix, "lessons_learned": lessons}
 
 
+HYPHENS = re.compile("[\u2010-\u2015\u2212]")  # gpt-oss likes non-breaking hyphens ("At\u2011risk")
+
+
+def _clean(x) -> str:
+    return HYPHENS.sub("-", str(x)).strip()
+
+
+def _mentions_segment(text: str) -> bool:
+    t = text.lower().replace("-", " ")
+    return any(s.lower() in t for s in SEGMENT_NAMES)
+
+
 def validate_text(out: dict) -> dict:
-    working, fix = [str(x) for x in out["working"]], [str(x) for x in out["fix"]]
-    lessons = [str(x) for x in out["lessons_learned"]]
+    working, fix = [_clean(x) for x in out["working"]], [_clean(x) for x in out["fix"]]
+    lessons = [_clean(x) for x in out["lessons_learned"]]
     if len(working) < 3 or len(fix) < 3:
         raise ValueError("need 3 working and 3 fix lines")
     if not 1 <= len(lessons) <= 3:
         raise ValueError("need 1 to 3 lessons_learned")
     for lesson in lessons:
-        if not any(s.lower() in lesson.lower() for s in SEGMENT_NAMES) or not re.search(r"\d", lesson):
+        if not _mentions_segment(lesson) or not re.search(r"\d", lesson):
             raise ValueError(f"lesson must name a segment and a number: {lesson!r}")
     return {"working": working[:3], "fix": fix[:3], "lessons_learned": lessons}
 

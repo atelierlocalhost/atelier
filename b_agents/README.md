@@ -53,3 +53,39 @@ python -m pytest b_agents/tests -q
 ```
 
 `fixture.py` builds a deterministic DB (80 customers, ~220 orders, 6 months, clear At risk group) under `b_agents/.dev/` (gitignored).
+
+## Shopper Lab
+
+20 synthetic shoppers (4 per segment) react to photo variants of one product. All LLM calls go to Tinfoil `gpt-oss-120b`.
+
+**Entry point for A's `lab.py`:** `result = await b_agents.lab_pipeline.arun(ctx)` (or `lab_pipeline.run(ctx)` from sync code). It returns a LabResult (`b_agents/lab_contract.py`) plus `analyst_*` extras.
+
+| ctx key | |
+|---|---|
+| `lab_run_id`, `variant_set_id` | e.g. `"l_001"`, `"vs_01"` |
+| `product` | name, or `{"name": ...}` |
+| `variants` | `[{variant_id, label, image_url, features, caption, price_usd, style?}]`; `style` is the word used in lessons ("lifestyle") |
+| `segments` | `insights_stats["segments"]` (insights `run()` output); only needed when `personas` isn't given |
+| `personas` | optional; the pipeline adds them to ctx, so pass them back to reuse the same panel |
+| `shopper_lessons` | `"all"` (default) or `"observed"`; see the note below |
+
+The pipeline runs in this order:
+1. `persona_gen.run` (only if `personas` isn't given).
+2. Lessons from `lab_outcomes`, read once (top 5).
+3. Each persona's history from the SQLite mirror.
+4. `shopper.run_panel`, with `Semaphore(8)`.
+5. `lab_analyst.run`, which writes `lab_outcomes`, `calibration` predictions and `persona:<id>` in one Cognee batch.
+
+**Real results:** call `memory.record_observed(variant_id, observed, source, segment=None)`. `observed` is on the lab's 0-1 score scale. It compares the result with the last prediction, writes a lesson such as "lab overrates lifestyle for At risk by 21%" and updates `calibration`.
+
+**`shopper_lessons`:** with `"all"`, shoppers also see the lab's own findings ("lifestyle scores +70% with Champions"), and in testing the lab amplified its own winner: the lead went from +19% to +71%. With `"observed"`, shoppers only see lessons from real results, and scores moved in the corrected direction.
+
+Timing: about 55-70s for a run with persona generation (persona_gen ~20s, panel ~25-30s, analyst ~5s), plus ~10-40s once per process to create the Tinfoil client.
+
+```bash
+python -m b_agents.dev_lab --fixture                     # run 1 -> 2 observed rates -> run 2
+python -m b_agents.dev_lab --fixture --lessons observed
+python -m pytest b_agents/tests -q -k live -s           # live 20-persona panel (needs .env)
+```
+
+Until `seed_lab.py` lands, `b_agents/lab_fixture.py` has the product and its 4 variants, and segment stats come from the fixture DB.
