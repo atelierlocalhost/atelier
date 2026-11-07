@@ -1,3 +1,71 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><title>Atelier Store</title></head>
-<body><!-- TODO(C): render products from GET /api/store --></body></html>
+<!--
+  Jinja2 template. Context from Person A:
+    store_name : str (optional, defaults to "Atelier")
+    products   : list of rows from the products table:
+                 id, name, price, category, tags (comma-separated str), image_url, stripe_link
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ store_name or "Atelier" }}</title>
+<style>
+  :root { --bg:#faf7f2; --ink:#2a2622; --muted:#7a7168; --line:#e8e1d6; --accent:#7c5e45; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:Georgia,'Times New Roman',serif; }
+  header { padding:32px 16px 8px; text-align:center; }
+  header h1 { margin:0; font-size:2.2rem; letter-spacing:.04em; }
+  header p { color:var(--muted); margin:6px 0 0; }
+  main { max-width:1000px; margin:0 auto; padding:16px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; }
+  .product { background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; }
+  .photo { aspect-ratio:4/5; background:#efe8dc center/cover no-repeat; }
+  .info { padding:12px 14px 14px; display:flex; flex-direction:column; gap:6px; flex:1; }
+  .info h2 { font-size:1.05rem; margin:0; }
+  .cat { color:var(--muted); font-size:.85rem; margin:0; }
+  .tags { display:flex; flex-wrap:wrap; gap:4px; }
+  .tag { font-size:.72rem; background:var(--line); border-radius:999px; padding:1px 8px; }
+  .price { font-size:1.1rem; margin-top:auto; }
+  .buy { display:block; text-align:center; background:var(--accent); color:#fff; text-decoration:none; padding:10px; border-radius:8px; }
+  .buy.off { background:var(--line); color:var(--muted); }
+  .empty { text-align:center; color:var(--muted); padding:48px 0; }
+  footer { text-align:center; color:var(--muted); font-size:.8rem; padding:24px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>{{ store_name or "Atelier" }}</h1>
+  <p>Small batch, made to last</p>
+</header>
+<main>
+  {% if products %}
+  <div class="grid">
+    {% for p in products %}
+    <article class="product">
+      <div class="photo" {% if p.image_url %}style="background-image:url('{{ p.image_url }}')"{% endif %}></div>
+      <div class="info">
+        <h2>{{ p.name }}</h2>
+        {% if p.category %}<p class="cat">{{ p.category }}</p>{% endif %}
+        {% if p.tags %}
+        <div class="tags">
+          {% for t in p.tags.split(',') if t.strip() %}<span class="tag">{{ t.strip() }}</span>{% endfor %}
+        </div>
+        {% endif %}
+        <div class="price">${{ "%.2f"|format(p.price) }}</div>
+        {% if p.stripe_link %}
+        <a class="buy" href="{{ p.stripe_link }}" target="_blank" rel="noopener">Buy now</a>
+        {% else %}
+        <span class="buy off">Coming soon</span>
+        {% endif %}
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="empty">No products yet.</p>
+  {% endif %}
+</main>
+<footer>Test mode checkout. Powered by Atelier.</footer>
+</body>
+</html>
