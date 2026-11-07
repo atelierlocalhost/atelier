@@ -16,7 +16,7 @@ import WeeklyReports from './tabs/WeeklyReports'
 import Icon from './components/Icons'
 import StyleGuide from './design/StyleGuide'
 
-// Left menu: the studio only. A signed boutique opens as one long page with every section.
+// Studio navigation sits above the boutique section sidebar.
 const STUDIO_TABS = [
   { id: 'trend', label: 'Trend Drive', icon: 'search' },
   { id: 'clients', label: 'Signed boutiques', icon: 'clients' },
@@ -74,7 +74,7 @@ export default function App() {
 
   useEffect(() => {
     if (session) load()
-  }, [session, load])
+  }, [session, load, tab])
 
   async function runAgain() {
     setBusy(true)
@@ -103,7 +103,10 @@ export default function App() {
   const openShop = (id) => {
     window.location.hash = `client=${id}`
     setClientId(id)
-    setRun(null)
+    if (id !== clientId) {
+      setRun(null)
+      setRuns([])
+    }
     setTab('shop')
     window.scrollTo(0, 0)
   }
@@ -111,10 +114,10 @@ export default function App() {
   const heading = shop ? clientName : STUDIO_TABS.find((t) => t.id === tab).label
 
   return (
-    <div className="shell">
-      <aside className="sidebar">
-        <div className="logo-block"><img className="logo" src="/logo.png" alt="Atelier" /></div>
-        <nav className="nav" aria-label="Main">
+    <div className={shop ? 'shell shop-shell' : 'shell studio-shell'}>
+      <header className="studio-header">
+        <div className="studio-brand"><img className="logo" src="/logo.png" alt="Atelier" /></div>
+        <nav className="studio-nav" aria-label="Main">
           {STUDIO_TABS.map((t) => (
             <button key={t.id} className={t.id === tab || (shop && t.id === 'clients') ? 'nav-item active' : 'nav-item'} onClick={() => go(t.id)}>
               <Icon name={t.icon} />
@@ -122,7 +125,17 @@ export default function App() {
             </button>
           ))}
         </nav>
-      </aside>
+      </header>
+      {shop && (
+        <aside className="sidebar">
+          <p className="caption">Boutique sections</p>
+          <nav className="nav" aria-label="Boutique sections">
+            {SHOP_SECTIONS.map((x) => (
+              <a key={x.id} className="nav-item" href={`#client=${clientId}`} onClick={(e) => { e.preventDefault(); document.getElementById(`sec-${x.id}`)?.scrollIntoView({ behavior: 'smooth' }) }}>{x.label}</a>
+            ))}
+          </nav>
+        </aside>
+      )}
       <div className="content">
         <header className="page-head shop-head">
           <div>
@@ -141,9 +154,6 @@ export default function App() {
           {tab === 'clients' && <Clients clients={clients} onOpen={openShop} />}
           {shop && (
             <>
-              <nav className="chips section-nav" aria-label="Sections">
-                {SHOP_SECTIONS.map((x) => <a key={x.id} className="pill" href={`#client=${clientId}`} onClick={(e) => { e.preventDefault(); document.getElementById(`sec-${x.id}`)?.scrollIntoView({ behavior: 'smooth' }) }}>{x.label}</a>)}
-              </nav>
               {!run && <p className="muted">No runs yet for this boutique. Click Run again to start one.</p>}
               <section id="sec-store" className="shop-section">
                 <Store run={run} name={clientName} website={run?.client?.website || client?.website} />

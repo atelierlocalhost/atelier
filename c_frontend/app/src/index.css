@@ -266,3 +266,36 @@ select.tag-input { min-width: 12rem; }
 .shop-section .btn.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--tint-lavender) 60%, var(--purple-500) 15%); }
 .shop-section .hero .btn.primary { background: var(--cream-100); color: var(--purple-700); border-color: var(--cream-100); }
 .lab-in-plan { border-top: 0; padding-top: 0; margin-bottom: var(--space-6); }
+
+/* Studio destinations stay at the top; boutique sections stay in the left rail. */
+.studio-header { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--space-4); padding: var(--space-3) var(--space-4); background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); box-shadow: var(--shadow); }
+.studio-brand { width: 5rem; padding: var(--space-2); background: var(--purple-700); border-radius: var(--radius-sm); }
+.studio-brand .logo { width: 100%; }
+.studio-nav { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.studio-shell { grid-template-columns: minmax(0, 1fr); }
+.shop-shell { align-content: start; }
+.shop-shell .sidebar { overflow-y: auto; }
+.shop-shell .sidebar .caption { margin: 0; }
+.shop-shell .sidebar .nav-item { text-decoration: none; }
+@media (max-width: 800px) {
+  .shop-shell { grid-template-columns: 11rem minmax(0, 1fr); gap: var(--space-2); padding: var(--space-2); }
+  .shop-shell .sidebar { position: sticky; top: var(--space-2); height: calc(100vh - 2 * var(--space-2)); flex-direction: column; align-items: stretch; padding: var(--space-2); }
+  .shop-shell .sidebar .nav { flex-direction: column; flex: initial; order: initial; overflow-x: visible; }
+  .studio-header { gap: var(--space-2); padding: var(--space-2); }
+  .studio-nav { gap: 0; }
+}
+@media (max-width: 480px) {
+  .shop-shell { grid-template-columns: 8rem minmax(0, 1fr); }
+  .shop-shell .sidebar .nav-item { padding: var(--space-2); font-size: var(--text-xs); }
+  .studio-brand { width: 3rem; flex-shrink: 0; }
+}
+
+.revenue-estimate { margin: var(--space-4) 0; }
+.revenue-estimate .grid { margin: var(--space-3) 0; }
+.revenue-estimate .table-scroll { overflow-x: auto; }
+.revenue-estimate caption { text-align: left; margin-bottom: var(--space-2); }
+
+.shop-revenue-box { display: flex; flex-direction: column; gap: var(--space-1); width: fit-content; max-width: 100%; padding: var(--space-3) var(--space-4); margin: var(--space-3) 0; border: 1px solid var(--glass-border); border-radius: var(--radius-md); background: var(--tint-mint, #e5f3eb); }
+.shop-revenue-value { font-size: var(--text-xl, 1.5rem); color: var(--ink); }
+.shop-revenue-value span { font-size: var(--text-sm); font-weight: normal; }
+.shop-revenue-box small { font-size: var(--text-xs); }

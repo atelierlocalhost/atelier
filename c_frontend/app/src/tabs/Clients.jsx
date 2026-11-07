@@ -1,12 +1,16 @@
+import { fillShopNumbers } from '../lib/simulated'
+import RevenueEstimate from '../components/RevenueEstimate'
 import { ChartCard, HBar } from '../components/Charts'
 
 const money = (n) => `$${Math.round(n).toLocaleString()}`
 
 // Signed boutiques: a simple list. The numbers live inside each boutique's page.
-export default function Clients({ clients, onOpen }) {
-  if (!clients.length) return <p className="muted">No signed boutiques yet. They appear here when a shop pays on its proposal.</p>
+export default function Clients({ clients: rawClients, onOpen }) {
+  const clients = rawClients.map(fillShopNumbers)
+
   return (
     <>
+      {!clients.length && <p className="muted">No signed boutiques yet. They appear here when a shop pays on its proposal.</p>}
       <section className="grid">
         <div className="tile lavender">
           <p className="caption">Signed shops</p>
@@ -20,7 +24,7 @@ export default function Clients({ clients, onOpen }) {
             <div className="comp-head">
               <div>
                 <h3>{c.name}</h3>
-                <p className="muted">{c.address || 'Brooklyn'} · signed {c.signed_at.slice(0, 10)}</p>
+                <p className="muted">{c.address || 'Brooklyn'} · signed {c.signed_at?.slice(0, 10) || 'date unavailable'}</p>
               </div>
               <button className="btn small" onClick={() => onOpen(c.id)}>Open boutique</button>
             </div>
@@ -32,11 +36,14 @@ export default function Clients({ clients, onOpen }) {
 }
 
 // Shown at the top of a boutique's page: last 90 days and monthly revenue.
-export function ClientSnapshot({ client }) {
-  if (!client) return null
+export function ClientSnapshot({ client: rawClient }) {
+  if (!rawClient) return null
+  const client = fillShopNumbers(rawClient)
   const monthly = client.monthly.slice(-6).map((m) => ({ ...m, color: 'var(--purple-500)' }))
   return (
     <>
+      <RevenueEstimate key={client.id} baseline={Number.isFinite(client.revenue_90d) ? client.revenue_90d / 3 : undefined} name={client.name} />
+      {client.simulatedFields.length > 0 && <p className="muted">Missing store figures filled with simulated data.</p>}
       <div className="client-stats">
         <span className="pill">{client.orders_90d} orders · 90 days</span>
         <span className="pill">{money(client.revenue_90d)} · 90 days</span>

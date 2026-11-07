@@ -1,3 +1,5 @@
+import { shopNumbers } from '../lib/simulated'
+import RevenueEstimate from '../components/RevenueEstimate'
 import { useCallback, useEffect, useState } from 'react'
 import { apiUrl, approveTrendShop, getTrendShop, getTrendShops, getTrendSummary, startTrendSearch } from '../api'
 import { ChartCard, HBar } from '../components/Charts'
@@ -9,7 +11,8 @@ const SOCIAL_COLORS = ['var(--seg-champions)', 'var(--seg-loyal)', 'var(--seg-ne
 // Real details from the shop's own website and the map, plus simulated social and competitor stats.
 function ShopProfile({ d }) {
   const pr = d.profile || {}
-  const range = pr.price_range ? `${money(pr.price_range[0])}–${money(pr.price_range[1])}` : 'Not listed'
+  const demo = shopNumbers(d.name)
+  const range = pr.price_range ? `${money(pr.price_range[0])}–${money(pr.price_range[1])}` : `${money(Math.round(demo.basket * 0.5))}–${money(demo.basket * 2)} (simulated)`
   return (
     <>
       <section className="grid">
@@ -147,6 +150,7 @@ function ShopPlan({ id, onBack, onChanged }) {
         <span className="pill">{statusLabel(d.status)}</span>
       </div>
 
+      <RevenueEstimate key={d.id} name={d.name} orderValue={d.profile?.price_range?.[2]} />
       <ShopProfile d={d} />
 
       <h2>Why we chose them</h2>

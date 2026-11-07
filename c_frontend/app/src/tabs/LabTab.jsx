@@ -254,7 +254,11 @@ export default function LabTab({ shopId, clientId }) {
   useEffect(() => {
     let live = true
     getLabVariants({ shop_id: shopId, client_id: clientId, audience })
-      .then((p) => live && setPreview(p))
+      .then((p) => {
+        if (!live) return
+        setPreview(p)
+        setRunsBy((prev) => ({ ...prev, [audience]: p?.runs || [] }))
+      })
       .catch(() => live && setPreview(null))
     return () => { live = false }
   }, [shopId, clientId, audience])
