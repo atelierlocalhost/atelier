@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="720" class="svg" viewBox="0 0 1120 720" role="img" aria-label="Architecture: browser, Stripe and SIE call a FastAPI app inside a Tinfoil enclave. Agents call an LLM router that sends every chat request to Tinfoil inference. Agents read and write memory through a permission gate into Cognee, which runs in-process and uses Tinfoil for its LLM and embeddings. Darkbloom is retired and its calls moved to Tinfoil.">
+<style>
+  .svg { --bg:#ffffff; --surface:#ffffff; --ink:#15202b; --muted:#5a6774; --line:#cfd6de; --tf:#0a7671; --tf-soft:#e1f3f1;
+    --tf-wash:#eef7f6; --cg:#6646c2; --cg-soft:#eee8fb; --sie:#a2650c; --retired:#8a939c; }
+  @media (prefers-color-scheme: dark) {
+    .svg { --bg:#0d1117; --surface:#151c23; --ink:#e5eaef; --muted:#95a2ae; --line:#2b3640; --tf:#41c6bc; --tf-soft:#11302e;
+      --tf-wash:#0f1d1d; --cg:#a88ff2; --cg-soft:#221b38; --sie:#e2a74c; --retired:#6c7681; }
+  }
+  .svg .bgfill { fill: var(--bg); stroke: var(--line); stroke-width: 1; }
+  .svg text { font-family: "IBM Plex Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 12px; fill: var(--ink); }
+  .svg .b { font-weight: 600; font-size: 13px; }
+  .svg .s { font-size: 11px; fill: var(--muted); }
+  .svg .m { font-family: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 10.5px; }
+  .svg .cap { font-size: 10.5px; font-weight: 600; letter-spacing: 0.12em; }
+  .svg .tf-t { fill: var(--tf); } .svg .cg-t { fill: var(--cg); } .svg .sie-t { fill: var(--sie); } .svg .ret-t { fill: var(--retired); }
+  .svg .box { fill: var(--surface); stroke: var(--line); stroke-width: 1.2; }
+  .svg .stub { stroke-dasharray: 5 4; }
+  .svg .tf-box { fill: var(--tf-soft); stroke: var(--tf); stroke-width: 1.6; }
+  .svg .cg-box { fill: var(--cg-soft); stroke: var(--cg); stroke-width: 1.6; }
+  .svg .sie-box { fill: var(--surface); stroke: var(--sie); stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .svg .ret-box { fill: var(--bg); stroke: var(--retired); stroke-width: 1.4; stroke-dasharray: 3 4; }
+  .svg .enclave { fill: var(--tf-wash); stroke: var(--tf); stroke-width: 1.6; stroke-dasharray: 9 6; }
+  .svg .chip { fill: var(--surface); stroke: var(--cg); stroke-width: 1; }
+  .svg .w { fill: none; stroke: var(--ink); stroke-width: 1.4; }
+  .svg .w-tf { stroke: var(--tf); stroke-width: 2.2; }
+  .svg .w-cg { stroke: var(--cg); stroke-width: 2.2; }
+  .svg .w-dash { stroke: var(--muted); stroke-dasharray: 5 4; }
+  .svg .w-ret { stroke: var(--retired); stroke-dasharray: 3 4; }
+  .svg .lane { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 5; }
+  .svg .m-ink { fill: var(--ink); } .svg .m-tf { fill: var(--tf); } .svg .m-cg { fill: var(--cg); } .svg .m-mu { fill: var(--muted); }
+</style>
+<rect x="0.5" y="0.5" width="1119" height="719" rx="12" class="bgfill"/>
+          <defs>
+            <marker id="a-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-ink"/></marker>
+            <marker id="a-tf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-tf"/></marker>
+            <marker id="a-cg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-cg"/></marker>
+            <marker id="a-mu" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-mu"/></marker>
+          </defs>
+
+          <!-- Legend -->
+          <text x="20" y="150" class="cap s">KEY</text>
+          <line x1="20" y1="176" x2="56" y2="176" class="w w-tf" marker-end="url(#a-tf)"/><text x="66" y="180" class="s">Tinfoil traffic</text>
+          <line x1="20" y1="204" x2="56" y2="204" class="w w-cg" marker-end="url(#a-cg)"/><text x="66" y="208" class="s">Cognee memory</text>
+          <line x1="20" y1="232" x2="56" y2="232" class="w" marker-end="url(#a-ink)"/><text x="66" y="236" class="s">in-process call</text>
+          <line x1="20" y1="260" x2="56" y2="260" class="w w-dash" marker-end="url(#a-mu)"/><text x="66" y="264" class="s">stub or planned</text>
+          <rect x="20" y="280" width="36" height="22" rx="4" class="enclave"/><text x="66" y="295" class="s">enclave boundary</text>
+          <rect x="20" y="314" width="36" height="22" rx="4" class="ret-box"/><text x="66" y="329" class="s">retired</text>
+
+          <!-- Top row: external callers -->
+          <rect x="240" y="20" width="170" height="60" rx="8" class="box"/>
+          <text x="325" y="45" text-anchor="middle" class="b">Browser</text>
+          <text x="325" y="64" text-anchor="middle" class="s">dashboard (C) · storefront</text>
+
+          <rect x="430" y="20" width="170" height="60" rx="8" class="box stub"/>
+          <text x="515" y="45" text-anchor="middle" class="b">Stripe</text>
+          <text x="515" y="64" text-anchor="middle" class="s">payment links · stub</text>
+
+          <rect x="620" y="20" width="170" height="60" rx="8" class="sie-box"/>
+          <text x="705" y="45" text-anchor="middle" class="b sie-t">SIE / Superlinked</text>
+          <text x="705" y="64" text-anchor="middle" class="s">a_platform/sie.py · stub</text>
+
+          <rect x="860" y="20" width="240" height="60" rx="8" class="ret-box"/>
+          <text x="980" y="45" text-anchor="middle" class="b ret-t" text-decoration="line-through">Darkbloom</text>
+          <text x="980" y="64" text-anchor="middle" class="s">retired · no credits (HTTP 402)</text>
+
+          <!-- Enclave -->
+          <rect x="220" y="110" width="570" height="595" rx="14" class="enclave"/>
+          <text x="236" y="131" class="cap tf-t">TINFOIL ENCLAVE</text>
+
+          <line x1="395" y1="80" x2="395" y2="140" class="w" marker-end="url(#a-ink)"/>
+          <text x="401" y="103" class="s">HTTPS /api/*</text>
+          <line x1="515" y1="80" x2="515" y2="140" class="w w-dash" marker-end="url(#a-mu)"/>
+          <text x="521" y="103" class="s">webhook</text>
+          <line x1="705" y1="80" x2="705" y2="140" class="w w-dash" marker-end="url(#a-mu)"/>
+          <text x="711" y="103" class="s">tag products</text>
+
+          <!-- FastAPI -->
+          <rect x="250" y="140" width="510" height="56" rx="8" class="box"/>
+          <text x="505" y="163" text-anchor="middle" class="b">FastAPI · a_platform/main.py</text>
+          <text x="505" y="183" text-anchor="middle" class="m s">/api/run · /api/actions/{id}/approve · /api/costs · /webhooks/stripe</text>
+
+          <line x1="395" y1="196" x2="395" y2="230" class="w" marker-end="url(#a-ink)"/>
+          <text x="401" y="217" class="s">orchestrator.run · lab_pipeline.arun</text>
+
+          <!-- Agents -->
+          <rect x="250" y="230" width="290" height="150" rx="8" class="box"/>
+          <text x="266" y="254" class="b">Agents · run(ctx) → dict</text>
+          <text x="266" y="276" class="s">Main run</text>
+          <text x="266" y="294" class="m">insights → competitor → strategy → social</text>
+          <text x="266" y="318" class="s">Shopper Lab</text>
+          <text x="266" y="336" class="m">persona_gen → shopper ×20 → lab_analyst</text>
+          <text x="266" y="364" class="s">A owns competitor · B owns the rest</text>
+
+          <!-- LLM router -->
+          <rect x="580" y="230" width="180" height="150" rx="8" class="box"/>
+          <text x="596" y="254" class="b">LLM router</text>
+          <text x="596" y="274" class="m s">llm.py · llm_util.py</text>
+          <text x="596" y="298" class="s">one shared TinfoilAI client</text>
+          <text x="596" y="316" class="s">attested at startup</text>
+          <text x="596" y="334" class="s">retries timeouts once</text>
+          <text x="596" y="352" class="s">tokens → costs table</text>
+
+          <line x1="540" y1="280" x2="580" y2="280" class="w" marker-end="url(#a-ink)"/>
+          <text x="560" y="272" text-anchor="middle" class="s">chat()</text>
+
+          <line x1="760" y1="280" x2="850" y2="280" class="w w-tf" marker-end="url(#a-tf)"/>
+          <text x="820" y="271" text-anchor="middle" class="s tf-t">chat</text>
+
+          <!-- memory.py gate + atelier.db -->
+          <rect x="250" y="410" width="290" height="64" rx="8" class="box"/>
+          <text x="266" y="436" class="b">memory.py · permission map</text>
+          <text x="266" y="456" class="s">denied read or write → PermissionError</text>
+
+          <line x1="395" y1="380" x2="395" y2="410" class="w" marker-end="url(#a-ink)"/>
+          <text x="401" y="399" class="s">read / write(agent, dataset)</text>
+
+          <rect x="580" y="410" width="180" height="64" rx="8" class="box"/>
+          <text x="596" y="436" class="b">atelier.db · SQLite</text>
+          <text x="596" y="456" class="s">orders · customers · products</text>
+
+          <path d="M540,350 H560 V442 H580" class="w" marker-end="url(#a-ink)"/>
+          <text x="553" y="396" text-anchor="middle" class="s" transform="rotate(-90 553 396)">reads orders</text>
+
+          <!-- Cognee -->
+          <rect x="250" y="510" width="290" height="160" rx="8" class="cg-box"/>
+          <text x="266" y="534" class="b cg-t">Cognee · runs in-process</text>
+          <text x="266" y="552" class="s">one isolated dataset per memory kind</text>
+          <rect x="266" y="563" width="45" height="20" rx="10" class="chip"/><text x="288.5" y="577" text-anchor="middle" class="m">brand</text>
+          <rect x="317" y="563" width="70" height="20" rx="10" class="chip"/><text x="352" y="577" text-anchor="middle" class="m">customers</text>
+          <rect x="393" y="563" width="82" height="20" rx="10" class="chip"/><text x="434" y="577" text-anchor="middle" class="m">competitors</text>
+          <rect x="266" y="589" width="64" height="20" rx="10" class="chip"/><text x="298" y="603" text-anchor="middle" class="m">outcomes</text>
+          <rect x="336" y="589" width="88" height="20" rx="10" class="chip"/><text x="380" y="603" text-anchor="middle" class="m">lab_outcomes</text>
+          <rect x="266" y="615" width="82" height="20" rx="10" class="chip"/><text x="307" y="629" text-anchor="middle" class="m">calibration</text>
+          <rect x="354" y="615" width="88" height="20" rx="10" class="chip"/><text x="398" y="629" text-anchor="middle" class="m">persona:&lt;id&gt;</text>
+          <text x="266" y="658" class="s">Kuzu graph · LanceDB vectors · SQLite meta</text>
+
+          <line x1="395" y1="474" x2="395" y2="510" class="w w-cg" marker-end="url(#a-cg)"/>
+          <text x="389" y="496" text-anchor="end" class="s cg-t">add · cognify · search</text>
+
+          <!-- Mirror -->
+          <rect x="580" y="510" width="180" height="160" rx="8" class="box"/>
+          <text x="596" y="534" class="b">Memory mirror · SQLite</text>
+          <text x="596" y="556" class="s">copy of every write</text>
+          <text x="596" y="574" class="s">fallback if Cognee errors</text>
+          <text x="596" y="592" class="s">persona history (fast)</text>
+          <text x="596" y="610" class="s">calibration records</text>
+          <text x="596" y="652" class="m s">b_agents/.dev/memory.db</text>
+
+          <path d="M525,474 V492 H670 V510" class="w" marker-end="url(#a-ink)"/>
+          <text x="604" y="487" class="s">mirror every write</text>
+
+          <!-- Cognee to Tinfoil -->
+          <path d="M395,670 V690 H850" class="w w-tf" marker-end="url(#a-tf)"/>
+          <text x="622" y="684" text-anchor="middle" class="s tf-t">cognify LLM + 768-d embeddings</text>
+
+          <!-- Tinfoil -->
+          <rect x="850" y="230" width="250" height="470" rx="10" class="tf-box"/>
+          <text x="866" y="256" class="b tf-t">Tinfoil · private inference</text>
+          <text x="866" y="274" class="m s">inference.tinfoil.sh/v1</text>
+          <text x="866" y="306" class="b">gpt-oss-120b · chat</text>
+          <text x="866" y="326" class="s">insights · strategy · social</text>
+          <text x="866" y="344" class="s">persona_gen · lab_analyst</text>
+          <text x="866" y="362" class="s">shopper ×20, at most 8 at once</text>
+          <text x="866" y="380" class="s">Cognee cognify</text>
+          <text x="866" y="420" class="b">nomic-embed-text · 768-d</text>
+          <text x="866" y="440" class="s">Cognee vectors</text>
+          <text x="866" y="480" class="b">Attestation</text>
+          <text x="866" y="500" class="s">client verifies the enclave</text>
+          <text x="866" y="518" class="s">before its first request</text>
+          <text x="866" y="558" class="b">Enclave hosting</text>
+          <text x="866" y="578" class="s">this app's container</text>
+          <text x="866" y="596" class="s">config in repo, deploy pending</text>
+          <text x="866" y="676" class="s">every LLM call in the system</text>
+
+          <!-- Darkbloom rerouted -->
+          <line x1="980" y1="80" x2="980" y2="230" class="w w-ret" marker-end="url(#a-mu)"/>
+          <text x="972" y="160" text-anchor="end" class="s">calls moved to Tinfoil</text>
+        </svg>

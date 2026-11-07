@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="340" class="svg" viewBox="0 0 1120 340" role="img" aria-label="Main run swimlane. Insights computes RFM segments in pandas, asks Tinfoil to explain aggregates, and writes a summary to Cognee customers. Competitor is mock data. Strategy reads Cognee outcomes and asks Tinfoil for three to five actions. Social reads brand and outcomes from Cognee and asks Tinfoil for three carousels. Approved actions are recorded to outcomes, which the next strategy run reads.">
+<style>
+  .svg { --bg:#ffffff; --surface:#ffffff; --ink:#15202b; --muted:#5a6774; --line:#cfd6de; --tf:#0a7671; --tf-soft:#e1f3f1;
+    --tf-wash:#eef7f6; --cg:#6646c2; --cg-soft:#eee8fb; --sie:#a2650c; --retired:#8a939c; }
+  @media (prefers-color-scheme: dark) {
+    .svg { --bg:#0d1117; --surface:#151c23; --ink:#e5eaef; --muted:#95a2ae; --line:#2b3640; --tf:#41c6bc; --tf-soft:#11302e;
+      --tf-wash:#0f1d1d; --cg:#a88ff2; --cg-soft:#221b38; --sie:#e2a74c; --retired:#6c7681; }
+  }
+  .svg .bgfill { fill: var(--bg); stroke: var(--line); stroke-width: 1; }
+  .svg text { font-family: "IBM Plex Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 12px; fill: var(--ink); }
+  .svg .b { font-weight: 600; font-size: 13px; }
+  .svg .s { font-size: 11px; fill: var(--muted); }
+  .svg .m { font-family: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 10.5px; }
+  .svg .cap { font-size: 10.5px; font-weight: 600; letter-spacing: 0.12em; }
+  .svg .tf-t { fill: var(--tf); } .svg .cg-t { fill: var(--cg); } .svg .sie-t { fill: var(--sie); } .svg .ret-t { fill: var(--retired); }
+  .svg .box { fill: var(--surface); stroke: var(--line); stroke-width: 1.2; }
+  .svg .stub { stroke-dasharray: 5 4; }
+  .svg .tf-box { fill: var(--tf-soft); stroke: var(--tf); stroke-width: 1.6; }
+  .svg .cg-box { fill: var(--cg-soft); stroke: var(--cg); stroke-width: 1.6; }
+  .svg .sie-box { fill: var(--surface); stroke: var(--sie); stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .svg .ret-box { fill: var(--bg); stroke: var(--retired); stroke-width: 1.4; stroke-dasharray: 3 4; }
+  .svg .enclave { fill: var(--tf-wash); stroke: var(--tf); stroke-width: 1.6; stroke-dasharray: 9 6; }
+  .svg .chip { fill: var(--surface); stroke: var(--cg); stroke-width: 1; }
+  .svg .w { fill: none; stroke: var(--ink); stroke-width: 1.4; }
+  .svg .w-tf { stroke: var(--tf); stroke-width: 2.2; }
+  .svg .w-cg { stroke: var(--cg); stroke-width: 2.2; }
+  .svg .w-dash { stroke: var(--muted); stroke-dasharray: 5 4; }
+  .svg .w-ret { stroke: var(--retired); stroke-dasharray: 3 4; }
+  .svg .lane { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 5; }
+  .svg .m-ink { fill: var(--ink); } .svg .m-tf { fill: var(--tf); } .svg .m-cg { fill: var(--cg); } .svg .m-mu { fill: var(--muted); }
+</style>
+<rect x="0.5" y="0.5" width="1119" height="339" rx="12" class="bgfill"/>
+          <defs>
+            <marker id="b-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-ink"/></marker>
+            <marker id="b-tf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-tf"/></marker>
+            <marker id="b-cg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-cg"/></marker>
+          </defs>
+          <text x="20" y="79" class="cap s">PIPELINE</text>
+          <text x="20" y="179" class="cap tf-t">TINFOIL</text>
+          <text x="20" y="274" class="cap cg-t">COGNEE</text>
+          <line x1="20" y1="128" x2="1100" y2="128" class="lane"/>
+          <line x1="20" y1="226" x2="1100" y2="226" class="lane"/>
+
+          <!-- Pipeline -->
+          <rect x="150" y="40" width="220" height="70" rx="8" class="box"/>
+          <text x="166" y="66" class="b">1 · insights</text><text x="166" y="88" class="s">pandas RFM on orders</text>
+          <rect x="390" y="40" width="220" height="70" rx="8" class="box stub"/>
+          <text x="406" y="66" class="b">2 · competitor (A)</text><text x="406" y="88" class="s">mock data today</text>
+          <rect x="630" y="40" width="220" height="70" rx="8" class="box"/>
+          <text x="646" y="66" class="b">3 · strategy</text><text x="646" y="88" class="s">3 to 5 proposed actions</text>
+          <rect x="870" y="40" width="220" height="70" rx="8" class="box"/>
+          <text x="886" y="66" class="b">4 · social</text><text x="886" y="88" class="s">3 carousels, 5 slides each</text>
+          <line x1="370" y1="75" x2="390" y2="75" class="w" marker-end="url(#b-ink)"/>
+          <line x1="610" y1="75" x2="630" y2="75" class="w" marker-end="url(#b-ink)"/>
+          <line x1="850" y1="75" x2="870" y2="75" class="w" marker-end="url(#b-ink)"/>
+
+          <!-- Tinfoil lane -->
+          <rect x="150" y="150" width="150" height="54" rx="8" class="tf-box"/>
+          <text x="162" y="172" class="s">explains segment</text><text x="162" y="190" class="s">aggregates only</text>
+          <rect x="630" y="150" width="150" height="54" rx="8" class="tf-box"/>
+          <text x="642" y="172" class="s">plans from insights,</text><text x="642" y="190" class="s">rivals, past outcomes</text>
+          <rect x="870" y="150" width="150" height="54" rx="8" class="tf-box"/>
+          <text x="882" y="172" class="s">writes captions,</text><text x="882" y="190" class="s">picks trend sounds</text>
+          <line x1="225" y1="110" x2="225" y2="150" class="w w-tf" marker-end="url(#b-tf)"/>
+          <line x1="705" y1="110" x2="705" y2="150" class="w w-tf" marker-end="url(#b-tf)"/>
+          <line x1="945" y1="110" x2="945" y2="150" class="w w-tf" marker-end="url(#b-tf)"/>
+
+          <!-- Cognee lane -->
+          <rect x="150" y="248" width="220" height="50" rx="8" class="cg-box"/>
+          <text x="166" y="270" class="m">customers</text><text x="166" y="288" class="s">segment summary, written</text>
+          <rect x="390" y="248" width="220" height="50" rx="8" class="cg-box"/>
+          <text x="406" y="270" class="m">outcomes</text><text x="406" y="288" class="s">record_outcome() on apply</text>
+          <rect x="630" y="248" width="220" height="50" rx="8" class="cg-box"/>
+          <text x="646" y="270" class="m">outcomes</text><text x="646" y="288" class="s">"what worked before?", read</text>
+          <rect x="870" y="248" width="220" height="50" rx="8" class="cg-box"/>
+          <text x="886" y="270" class="m">brand · outcomes</text><text x="886" y="288" class="s">voice and results, read</text>
+          <line x1="340" y1="110" x2="340" y2="248" class="w w-cg" marker-end="url(#b-cg)"/>
+          <line x1="820" y1="248" x2="820" y2="110" class="w w-cg" marker-end="url(#b-cg)"/>
+          <line x1="1060" y1="248" x2="1060" y2="110" class="w w-cg" marker-end="url(#b-cg)"/>
+          <line x1="610" y1="273" x2="630" y2="273" class="w w-cg" marker-end="url(#b-cg)"/>
+          <text x="500" y="326" text-anchor="middle" class="s">owner approves an action → its result lands here → the next strategy run reads it</text>
+        </svg>
