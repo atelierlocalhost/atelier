@@ -1,13 +1,9 @@
 import { DEMO_CLIENT, DEMO_STORE } from '../demoClient'
-
-const TINTS = ['lavender', 'peach', 'sky', 'pink', 'mint', 'butter', 'lavender', 'peach']
+import { BOA_PRODUCTS } from '../demoData'
 
 // The client site refuses to be embedded (X-Frame-Options: DENY), so this is Atelier's own
-// storefront view built from the site's real collections. Links open the real site.
+// storefront view built from the site's public product feed. Images load from the brand's CDN.
 export default function StorefrontPreview() {
-  const open = (children, cls) => (
-    <a className={cls} href={DEMO_CLIENT.url} target="_blank" rel="noopener noreferrer">{children}</a>
-  )
   return (
     <div className="card storefront">
       <div className="sf-promo">{DEMO_STORE.promo}</div>
@@ -15,15 +11,17 @@ export default function StorefrontPreview() {
         <h3>{DEMO_CLIENT.name}</h3>
         <p className="muted">{DEMO_STORE.tagline}</p>
       </div>
-      <div className="sf-edits">
-        {DEMO_STORE.edits.map((e) => open(e, 'pill'))}
-        {DEMO_STORE.occasions.map((e) => open(e, 'pill alt'))}
-      </div>
-      <div className="grid">
-        {DEMO_STORE.collections.map((c, i) => open(<span>{c}</span>, `tile ${TINTS[i]} sf-tile`))}
+      <div className="product-grid">
+        {BOA_PRODUCTS.map((p) => (
+          <a className="product-card" key={p.url} href={p.url} target="_blank" rel="noopener noreferrer">
+            <img src={p.image} alt={p.name} loading="lazy" referrerPolicy="no-referrer" />
+            <span className="product-name">{p.name}</span>
+            <span className="muted">£{p.price.toFixed(0)}</span>
+          </a>
+        ))}
       </div>
       <p className="muted">
-        Collections are read from the live site.{' '}
+        Newest products from the live site.{' '}
         <a href={DEMO_CLIENT.url} target="_blank" rel="noopener noreferrer">Open the full store in a new tab</a>.
       </p>
     </div>

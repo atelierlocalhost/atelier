@@ -37,3 +37,6 @@ Other behavior to know:
 
 ## Demo data
 `c_frontend/app/src/demoClient.js` overlays the mock run with a demo client (Because Of Alice) and an invented, larger customer base. Those numbers are not the brand's real figures. The competitor (Oh Polly) and the storefront collections were read from public sites. The client site forbids embedding, so the mock storefront is drawn by the app.
+
+## Competitor data the UI can already use (proposal)
+The demo reads each brand's public Shopify feed (`/products.json`) and shows a benchmark: median dress price, share of catalogue on sale, in-stock share, photos per product, variants per product. To do this live, the Competitor agent could return an optional `metrics` object per competitor (`sampled`, `dressMedian`, `onSalePct`, `inStockPct`, `avgImages`, `avgVariants`) and compute `price_gap_pct` from it. The demo logic is in `c_frontend/app/src/lib/competitors.js` and `demoData.js`. Instagram and TikTok are sign-in walled, so social posts cannot be read that way.

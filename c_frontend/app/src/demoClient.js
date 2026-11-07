@@ -1,6 +1,8 @@
 // Demo client for the pitch: Because Of Alice (contemporary British womenswear).
 // Figures below are INVENTED for the demo, not the brand's real numbers.
 // Competitor name, URL and promos were read from the competitor's public site.
+import { BOA_PRODUCTS, OHPOLLY_METRICS, BOA_METRICS } from './demoData'
+
 export const DEMO_CLIENT = { name: 'Because Of Alice', url: 'https://www.becauseofalice.com/' }
 
 const SEGMENTS_BEFORE = [
@@ -30,20 +32,24 @@ const COMPETITORS = [
       'Tops: 2 for £40',
       'Swim: buy 2 or more, save 40%',
     ],
-    price_gap_pct: null, // not measured yet
+    // Their median dress price vs ours, from both public product feeds.
+    price_gap_pct: Math.round(((OHPOLLY_METRICS.dressMedian - BOA_METRICS.dressMedian) / BOA_METRICS.dressMedian) * 100),
+    metrics: OHPOLLY_METRICS,
   },
 ]
 
+const IMG = (i) => BOA_PRODUCTS[i]?.image
+// Demo copy written for the pitch, using real product names and images from the brand's website.
 const SOCIAL = [
   {
-    caption: 'Tailored for the evening. New eveningwear edit, now live.',
+    caption: 'Ostrich embossed leather has landed. The funnel neck jacket and maxi skirt, in Java and Cream.',
     sound: 'Golden Hour (slowed)',
     slides: [
-      { headline: 'The evening edit', body: 'Sharp tailoring, soft drape.' },
-      { headline: 'Made to move', body: 'From dinner to the dance floor.' },
-      { headline: 'Style it three ways', body: 'Blazer, midi, co-ord.' },
-      { headline: 'Wedding guest ready', body: 'Dresses for every dress code.' },
-      { headline: 'Shop now', body: 'Contemporary British womenswear.' },
+      { headline: 'New: ostrich embossed leather', body: 'The tailored maxi skirt, in Java.', image: IMG(0) },
+      { headline: 'Cream, too', body: 'Same cut, softer tone.', image: IMG(1) },
+      { headline: 'The funnel neck jacket', body: 'Style it with the skirt.', image: IMG(2) },
+      { headline: 'Wool blend tailoring', body: 'Mini shorts in Slate.', image: IMG(3) },
+      { headline: 'Shop the edit', body: 'Contemporary British womenswear.', image: IMG(5) },
     ],
   },
 ]

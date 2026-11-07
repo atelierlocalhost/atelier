@@ -50,7 +50,57 @@ export function analyse(competitor, own) {
   return MECHANICS.filter((m) => theirs[m] || own[m]).map((m) => {
     const they = theirs[m]
     const you = hasOwn(m)
-    const status = they && !you ? 'They lead' : they && you ? 'Both offer' : 'You lead'
+    const unknown = they && own[m] === undefined
+    const status = unknown ? 'Check yours' : they && !you ? 'They lead' : they && you ? 'Both offer' : 'You lead'
     return { mechanic: m, theirs: they || 'Nothing seen', yours: own[m] || 'Not known', status, response: status === 'They lead' ? RESPONSE[m] : null }
   })
+}
+
+const gbp = (n) => `£${Math.round(n)}`
+
+// Compare catalogue metrics from the two public product feeds. Returns who leads on each, with insight and action.
+export function benchmark(theirs, mine, name) {
+  const gap = Math.round(((theirs.dressMedian - mine.dressMedian) / mine.dressMedian) * 100)
+  return [
+    {
+      metric: 'Median dress price',
+      them: gbp(theirs.dressMedian), you: gbp(mine.dressMedian),
+      lead: theirs.dressMedian < mine.dressMedian ? 'They lead' : 'You lead',
+      insight: `${name} dresses are ${Math.abs(gap)}% ${gap < 0 ? 'cheaper' : 'pricier'} at the median. You sit in the premium tier, so competing on price would hurt margin.`,
+      action: 'Hold price, but justify it: lead product pages and ads with tailoring, fabric and fit, and show the price per wear.',
+      segment: 'New',
+    },
+    {
+      metric: 'Share of catalogue on sale',
+      them: `${theirs.onSalePct}%`, you: `${mine.onSalePct}%`,
+      lead: theirs.onSalePct < mine.onSalePct ? 'They lead' : 'You lead',
+      insight: `You mark down ${mine.onSalePct}% of products against ${theirs.onSalePct}% for ${name}. Frequent markdowns train customers to wait for sales and weaken a premium position.`,
+      action: 'Cut blanket markdowns. Replace them with targeted offers (win-back for At risk, early access for Champions).',
+      segment: 'At risk',
+    },
+    {
+      metric: 'Products in stock',
+      them: `${theirs.inStockPct}%`, you: `${mine.inStockPct}%`,
+      lead: theirs.inStockPct > mine.inStockPct ? 'They lead' : 'You lead',
+      insight: `${mine.inStockPct}% of your range is available against ${theirs.inStockPct}%. Availability is a strength.`,
+      action: 'Mention availability in campaigns: "in stock, ships now".',
+      segment: 'Loyal',
+    },
+    {
+      metric: 'Photos per product',
+      them: theirs.avgImages, you: mine.avgImages,
+      lead: theirs.avgImages > mine.avgImages ? 'They lead' : 'You lead',
+      insight: `You show ${mine.avgImages} photos per product against ${theirs.avgImages}. Richer imagery supports a higher price.`,
+      action: 'Reuse your extra product photography in social carousels and email.',
+      segment: 'New',
+    },
+    {
+      metric: 'Variants per product',
+      them: theirs.avgVariants, you: mine.avgVariants,
+      lead: theirs.avgVariants > mine.avgVariants ? 'They lead' : 'You lead',
+      insight: `${name} lists ${theirs.avgVariants} size and colour variants per product against your ${mine.avgVariants}. A wider size run can reduce lost sales and returns.`,
+      action: 'Review your size range and restock the sizes that sell out first.',
+      segment: 'Loyal',
+    },
+  ]
 }
