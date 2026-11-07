@@ -10,7 +10,7 @@ import CostPanel from './components/CostPanel'
 const TABS = ['Store', 'Insights', 'Actions', 'Social', 'Compare']
 
 export default function App() {
-  const [tab, setTab] = useState('Insights')
+  const [tab, setTab] = useState('Store')
   const [run, setRun] = useState(null)
   const [runs, setRuns] = useState([])
   const [busy, setBusy] = useState(false)
@@ -73,12 +73,12 @@ export default function App() {
       </nav>
       {error && <p className="error">{error}</p>}
       <main>
-        {tab === 'Store' && <Store />}
+        {tab === 'Store' && <Store run={run} />}
         {run && tab === 'Insights' && <Insights run={run} />}
         {run && tab === 'Actions' && <Actions run={run} onChange={load} />}
         {run && tab === 'Social' && <Social run={run} />}
         {tab === 'Compare' && <Compare runs={runs} />}
-        {!run && !error && tab !== 'Store' && tab !== 'Compare' && (
+        {!run && !error && tab !== 'Compare' && tab !== 'Store' && (
           <p className="muted">No runs yet. Click Run again to start one.</p>
         )}
       </main>
