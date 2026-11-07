@@ -120,10 +120,10 @@ function Result({ result }) {
             : 'Intervals overlap, so no winner is named. Add a stronger variant or more personas.'}
         </p>
       </div>
-      <section className="cols">
-        <Leaderboard result={result} />
-        <Heatmap result={result} />
-      </section>
+      <Leaderboard result={result} />
+      <div style={{ height: 'var(--space-3)' }} />
+      <Heatmap result={result} />
+      <div style={{ height: 'var(--space-3)' }} />
       <section className="cols">
         <Shares title="Why shoppers liked it" items={result.reasons} variants={result.variants} tone="good" />
         <Shares title="What put them off" items={result.objections} variants={result.variants} tone="bad" />
