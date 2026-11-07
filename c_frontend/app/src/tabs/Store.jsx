@@ -39,7 +39,6 @@ export default function Store({ run }) {
           <h2>Your store at a glance</h2>
           <p>{customers} customers, {money(revenue)} in lifetime revenue, {pending} actions waiting for you.</p>
         </div>
-        <img src="/ellipse.png" alt="" />
       </div>
       <section className="grid">
         <Tile tint="lavender" label="Customers" value={customers} sub={`${by('New')?.count ?? 0} new recently`} />
