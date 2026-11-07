@@ -6,10 +6,12 @@ import Actions from './tabs/Actions'
 import Social from './tabs/Social'
 import Compare from './tabs/Compare'
 import CostPanel from './components/CostPanel'
+import StyleGuide from './design/StyleGuide'
 
 const TABS = ['Store', 'Insights', 'Actions', 'Social', 'Compare']
 
 export default function App() {
+  if (window.location.hash === '#design') return <StyleGuide />
   const [tab, setTab] = useState('Store')
   const [run, setRun] = useState(null)
   const [runs, setRuns] = useState([])
