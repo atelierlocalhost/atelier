@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { getLatestRun, listRuns, startRun, USE_MOCK } from './api'
+import { getLatestRun, getRun, startRun, USE_MOCK } from './api'
 import Store from './tabs/Store'
 import Insights from './tabs/Insights'
 import Actions from './tabs/Actions'
@@ -18,8 +18,14 @@ export default function App() {
 
   const load = useCallback(async () => {
     try {
-      setRun(await getLatestRun())
-      setRuns([...(await listRuns())])
+      const latest = await getLatestRun()
+      setRun(latest)
+      if (latest) {
+        // No list endpoint: also fetch the previous run by id for Compare.
+        const n = Number(latest.run_id.split('_')[1])
+        const prev = n > 1 ? await getRun(`r_${String(n - 1).padStart(3, '0')}`) : null
+        setRuns(prev ? [prev, latest] : [latest])
+      }
       setError('')
     } catch (e) {
       setError(e.message)
@@ -33,8 +39,9 @@ export default function App() {
   async function runAgain() {
     setBusy(true)
     try {
-      setRun(await startRun())
-      setRuns([...(await listRuns())])
+      const next = await startRun()
+      setRuns((prev) => [...prev.filter((r) => r.run_id !== next.run_id), next].slice(-2))
+      setRun(next)
       setError('')
     } catch (e) {
       setError(e.message)
@@ -53,7 +60,7 @@ export default function App() {
         <div className="top-right">
           {run && <span className="pill">{run.run_id}</span>}
           <button className="btn primary" onClick={runAgain} disabled={busy}>
-            {busy ? 'Running...' : 'Run again'}
+            {busy ? 'Running (up to 90s)...' : 'Run again'}
           </button>
         </div>
       </header>
@@ -71,9 +78,11 @@ export default function App() {
         {run && tab === 'Actions' && <Actions run={run} onChange={load} />}
         {run && tab === 'Social' && <Social run={run} />}
         {tab === 'Compare' && <Compare runs={runs} />}
-        {!run && !error && tab !== 'Store' && <p className="muted">Loading...</p>}
+        {!run && !error && tab !== 'Store' && tab !== 'Compare' && (
+          <p className="muted">No runs yet. Click Run again to start one.</p>
+        )}
       </main>
-      <CostPanel runKey={run?.run_id} />
+      <CostPanel runId={run?.run_id} />
     </div>
   )
 }

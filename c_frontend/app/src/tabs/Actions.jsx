@@ -3,12 +3,16 @@ import { approveAction } from '../api'
 
 export default function Actions({ run, onChange }) {
   const [pending, setPending] = useState(null)
+  const [err, setErr] = useState('')
 
   async function approve(id) {
     setPending(id)
+    setErr('')
     try {
       await approveAction(id)
       await onChange()
+    } catch (e) {
+      setErr(e.message)
     } finally {
       setPending(null)
     }
@@ -16,6 +20,7 @@ export default function Actions({ run, onChange }) {
 
   return (
     <>
+      {err && <p className="error">{err}</p>}
       {run.memory_used.length > 0 && (
         <div className="card memory">
           <h3>Used from memory</h3>
@@ -29,6 +34,7 @@ export default function Actions({ run, onChange }) {
               <span className="pill">{a.type}</span> <span className="pill alt">{a.segment}</span>
               <h3>{a.title}</h3>
               <p className="muted">{a.why}</p>
+              {a.result?.message && <p className="muted">{a.result.message}</p>}
             </div>
             {a.status === 'applied' ? (
               <span className="pill ok">Applied</span>
