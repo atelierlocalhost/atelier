@@ -14,6 +14,14 @@ const SERVICES = [
 
 const COLORS = ['var(--seg-champions)', 'var(--seg-loyal)', 'var(--seg-new)']
 
+// From the project plan: run order, which provider handles each agent, and Cognee memory permissions.
+const AGENTS = [
+  { name: 'Insights', provider: 'Tinfoil (private)', memory: 'Reads and writes customers, outcomes' },
+  { name: 'Competitor', provider: 'Darkbloom + SIE', memory: 'Writes competitors only' },
+  { name: 'Strategy', provider: 'Tinfoil (private)', memory: 'Reads and writes customers, outcomes' },
+  { name: 'Social', provider: 'Darkbloom', memory: 'Reads brand and outcomes, never customers' },
+]
+
 export default function Connect({ email, run }) {
   const [conn, setConn] = useState(getConnections)
   const [costs, setCosts] = useState(null)
@@ -48,6 +56,18 @@ export default function Connect({ email, run }) {
           </div>
         ))}
       </section>
+      <h2>Agents</h2>
+      <div className="card">
+        <table className="data-table history">
+          <thead><tr><th>Order</th><th>Agent</th><th>Runs on</th><th>Memory access</th></tr></thead>
+          <tbody>
+            {AGENTS.map((g, i) => (
+              <tr key={g.name}><td>{i + 1}</td><th>{g.name}</th><td>{g.provider}</td><td>{g.memory}</td></tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="muted">Customer data only goes to the private enclave. Social never reads customers. What the agents learned is shown on the Actions tab.</p>
+      </div>
       {costs && (
         <>
           <h2>Usage and cost</h2>

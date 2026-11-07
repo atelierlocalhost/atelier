@@ -30,7 +30,7 @@ export default function Actions({ run, onChange }) {
       {err && <p className="error">{err}</p>}
       {run.memory_used.length > 0 && (
         <div className="card memory" style={{ marginBottom: 'var(--space-4)' }}>
-          <h3>Used from memory</h3>
+          <h3>Why this plan: used from memory</h3>
           <ul>{run.memory_used.map((m) => <li key={m}>{m}</li>)}</ul>
         </div>
       )}

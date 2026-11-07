@@ -189,3 +189,5 @@ code { font-size: var(--text-xs); background: rgba(255, 255, 255, 0.7); padding:
 .sf-edits a { text-decoration: none; color: var(--ink); }
 .sf-tile { display: flex; align-items: flex-end; min-height: 6.5rem; text-decoration: none; color: var(--ink); font-family: var(--font-serif); font-size: var(--text-lg); }
 .sf-tile:hover { filter: brightness(0.97); transform: translateY(-1px); }
+.grouped-row { display: grid; grid-template-columns: 8rem 1fr; gap: var(--space-3); align-items: center; font-size: var(--text-sm); }
+.grouped-bars { display: flex; flex-direction: column; gap: var(--space-1); }

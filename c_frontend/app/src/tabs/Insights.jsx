@@ -1,4 +1,7 @@
 import CompetitorCard from '../components/CompetitorCard'
+import CompetitorAnalysis from '../components/CompetitorAnalysis'
+import SocialInsights from '../components/SocialInsights'
+import MailingList from './MailingList'
 import SegmentExplorer from '../components/SegmentExplorer'
 import { segTint } from '../design/palette'
 
@@ -28,10 +31,14 @@ export default function Insights({ run }) {
           <ul>{fix.map((f) => <li key={f}>{f}</li>)}</ul>
         </div>
       </section>
+      <h2>Social media</h2>
+      <SocialInsights run={run} />
+      <MailingList run={run} />
       <h2>Competitors</h2>
       <div className="grid wide">
         {run.competitors.map((c) => <CompetitorCard key={c.url} c={c} />)}
       </div>
+      <CompetitorAnalysis run={run} />
     </>
   )
 }

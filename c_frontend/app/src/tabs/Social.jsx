@@ -1,15 +1,11 @@
 import SlideCard from '../components/SlideCard'
 import Emails from './Emails'
 import ImageLab from './ImageLab'
-import MailingList from './MailingList'
 
 export default function Social({ run, onChange }) {
   return (
     <>
-      <Emails run={run} onChange={onChange} />
-      <MailingList run={run} />
-      <ImageLab />
-      <h2>Social posts</h2>
+      <h2 style={{ marginTop: 0 }}>Social posts</h2>
       <section className="stack">
         {run.social.map((post, i) => (
           <div className="card" key={i}>
@@ -23,6 +19,8 @@ export default function Social({ run, onChange }) {
           </div>
         ))}
       </section>
+      <ImageLab />
+      <Emails run={run} onChange={onChange} />
     </>
   )
 }

@@ -3,12 +3,21 @@
 // Competitor name, URL and promos were read from the competitor's public site.
 export const DEMO_CLIENT = { name: 'Because Of Alice', url: 'https://www.becauseofalice.com/' }
 
-const SEGMENTS = [
+const SEGMENTS_BEFORE = [
   { name: 'Champions', count: 142, avg_spend: 640 },
   { name: 'Loyal', count: 318, avg_spend: 310 },
   { name: 'New', count: 205, avg_spend: 118 },
   { name: 'At risk', count: 236, avg_spend: 142 },
   { name: 'Hibernating', count: 489, avg_spend: 64 },
+]
+
+// Demo only: invented customer base after the win-back email ran, so Compare has a story.
+const SEGMENTS_AFTER = [
+  { name: 'Champions', count: 149, avg_spend: 652 },
+  { name: 'Loyal', count: 346, avg_spend: 318 },
+  { name: 'New', count: 231, avg_spend: 126 },
+  { name: 'At risk', count: 198, avg_spend: 148 },
+  { name: 'Hibernating', count: 466, avg_spend: 66 },
 ]
 
 const COMPETITORS = [
@@ -41,6 +50,7 @@ const SOCIAL = [
 
 export function applyClient(run) {
   const r = structuredClone(run)
+  const SEGMENTS = run.run_id === 'r_002' ? SEGMENTS_AFTER : SEGMENTS_BEFORE
   const total = SEGMENTS.reduce((n, s) => n + s.count, 0)
   const by = (n) => SEGMENTS.find((s) => s.name === n)
   const revenue = SEGMENTS.reduce((n, s) => n + s.count * s.avg_spend, 0)
@@ -71,4 +81,12 @@ export const DEMO_STORE = {
   collections: ['Outerwear', 'Knitwear', 'Co-ords', 'Dresses', 'Blazers', 'Trousers', 'Tops & Bodysuits', 'Skirts'],
   edits: ['Tailoring', 'Leather', 'Eveningwear'],
   occasions: ['Partywear', 'Bridal', 'Vacation', 'Wedding Guest'],
+}
+
+// What the demo client offers today, read from its public homepage. Missing keys mean "not known".
+export const OWN_OFFERS = {
+  'First-order offer': 'Sign-up gets 10% off the first order',
+  'Percent off': 'Outlet section',
+  Delivery: 'No free delivery offer stated (calculated at checkout)',
+  'Multi-buy': 'None seen',
 }

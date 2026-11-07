@@ -8,12 +8,12 @@ Flip to your API with `VITE_USE_MOCK=false` and `VITE_BASE_URL=http://localhost:
 | Tab | Uses | Status |
 |---|---|---|
 | Your store | `GET /api/run/latest`, iframe of `GET /api/store` | Works against the contract. Stats are derived from `insights.segments`. |
-| Insights | run JSON | Interactive segment explorer (click a slice for actions and past results). |
-| Actions | `POST /api/actions/{id}/approve` | Board by status. Expects the updated Action back (`status: applied`, optional `result.message`). |
-| Social and email | run JSON | Email drafts, mailing list, past campaigns, image lab, carousels. See "Needs" below. |
+| Insights | run JSON | Segment explorer, social media insights, mailing list and past campaigns, competitor analysis (what they do better, offer comparison, suggested responses). |
+| Actions | `POST /api/actions/{id}/approve` | Board by status, plus the memory the Strategy agent used. Expects the updated Action back (`status: applied`, optional `result.message`). |
+| Social and email | run JSON | Carousels, image lab (uploads, sample stats), email drafts. |
 | Assistant and reports | `POST /api/chat` (missing) | Chat falls back to rule-based answers from the run. Reports (PDF/CSV/MD) are built in the browser. |
-| Compare runs | `GET /api/run/{id}` | Fetches the previous run by id (`r_002` then `r_001`). |
-| Connections | `GET /api/costs` | Local toggles in mock mode. Disabled against the live API. |
+| Compare runs | `GET /api/run/{id}` | Runs named by what happened, what changed, what worked, customer profile before and after. Fetches the previous run by id. |
+| Connections | `GET /api/costs` | Agent order and memory permissions, cost per run and spend breakdown, service connections (local toggles in mock mode). |
 
 Other behavior to know:
 - `POST /api/run` can take 30 to 90 s. The UI waits up to 180 s.

@@ -106,3 +106,27 @@ export function Donut({ data, format = fmtDefault, centerLabel, selected, onSele
     </div>
   )
 }
+
+// Before/after bars per row. Before is muted, after carries the row color. Values in the tooltip and table view.
+export function GroupedBars({ rows, format = fmtDefault }) {
+  const max = Math.max(...rows.flatMap((r) => [r.before, r.after])) || 1
+  return (
+    <div className="hbar">
+      {rows.map((r) => (
+        <div className="grouped-row" key={r.name}>
+          <span className="hbar-label"><i style={{ background: r.color }} />{r.name}</span>
+          <div className="grouped-bars">
+            <div className="hbar-track">
+              <div className="hbar-fill" style={{ width: `${(r.before / max) * 100}%`, background: 'var(--line)', border: '1px solid var(--border-strong)' }} />
+              <span className="hbar-val muted">{format(r.before)}</span>
+            </div>
+            <div className="hbar-track">
+              <div className="hbar-fill" style={{ width: `${(r.after / max) * 100}%`, background: r.color }} />
+              <span className="hbar-val">{format(r.after)}</span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
