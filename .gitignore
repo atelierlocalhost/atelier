@@ -1,0 +1,10 @@
+.env
+.venv
+node_modules
+*.db
+.cognee*
+b_agents/.dev/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store

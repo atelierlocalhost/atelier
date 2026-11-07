@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+openai
+tinfoil
+pandas
+cognee
+stripe
+httpx
+pytest

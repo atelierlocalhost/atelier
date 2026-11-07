@@ -1,0 +1,21 @@
+# Owned by Person A. Tinfoil enclave config; verify field names against Tinfoil's docs before deploying.
+cvm-version: 0.0.0          # TODO(A): set from Tinfoil docs
+cpus: 2
+memory: 4096
+containers:
+  - name: atelier
+    image: ghcr.io/atelierlocalhost/atelier:latest   # TODO(A): pin digest
+    env:
+      - TINFOIL_API_KEY
+      - DARKBLOOM_API_KEY
+      - DARKBLOOM_MODEL
+      - SIE_API_KEY
+      - STRIPE_SECRET_KEY
+      - TELEMETRY_DISABLED
+shim:
+  listen-port: 443
+  upstream-port: 8080
+  paths:
+    - /health
+    - /api/*
+    - /webhooks/stripe

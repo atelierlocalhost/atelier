@@ -1,0 +1,43 @@
+{
+  "run_id": "r_001",
+  "insights": {
+    "segments": [
+      {"name": "Champions", "count": 9, "avg_spend": 412.0},
+      {"name": "Loyal", "count": 17, "avg_spend": 238.4},
+      {"name": "New", "count": 12, "avg_spend": 71.2},
+      {"name": "At risk", "count": 14, "avg_spend": 86.5},
+      {"name": "Hibernating", "count": 28, "avg_spend": 44.9}
+    ],
+    "working": [
+      "Champions (9 customers) drive 38% of revenue with avg spend $412",
+      "New customers are arriving steadily: 12 in the last 60 days"
+    ],
+    "fix": [
+      "14 At risk customers haven't ordered in 90+ days but used to spend $86 on average",
+      "Hibernating is the largest segment (28) with low avg spend"
+    ]
+  },
+  "competitors": [
+    {"name": "Maison Verte", "url": "https://maisonverte.example", "promos": ["20% off linen sets", "Free shipping over $75"], "price_gap_pct": -8}
+  ],
+  "actions": [
+    {"id": 1, "type": "coupon", "segment": "At risk", "title": "15% come-back coupon for At risk customers",
+     "why": "14 customers with $86 avg spend have lapsed 90+ days; a modest discount is cheap to test", "status": "proposed"},
+    {"id": 2, "type": "bundle", "segment": "Loyal", "title": "Linen essentials bundle for Loyal customers",
+     "why": "Loyal customers buy 3+ times; a bundle raises order value and counters Maison Verte's linen promo", "status": "proposed"},
+    {"id": 3, "type": "acquisition_post", "segment": "New", "title": "Behind-the-rack post to attract new shoppers",
+     "why": "New customer flow is healthy; reinforce it with organic social", "status": "proposed"}
+  ],
+  "memory_used": [],
+  "social": [
+    {"caption": "Slow mornings, soft linen. New arrivals are on the rail.", "sound": "Golden Hour (slowed)",
+     "slides": [
+       {"headline": "New on the rail", "body": "Washed linen in oat, sage and ink."},
+       {"headline": "Made to last", "body": "Pieces you'll reach for every week."},
+       {"headline": "Style it three ways", "body": "Desk, dinner, Sunday market."},
+       {"headline": "Small batch", "body": "Only a few of each size."},
+       {"headline": "Come say hi", "body": "Open Tue to Sun, 10 to 6."}
+     ]}
+  ],
+  "costs": {"sie_usd": 0.004, "tinfoil_usd": 0.03, "darkbloom_usd": 0.01, "frontier_equiv_usd": 0.41}
+}
