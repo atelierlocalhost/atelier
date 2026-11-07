@@ -162,3 +162,12 @@ code { font-size: var(--text-xs); background: rgba(255, 255, 255, 0.7); padding:
 .tag-input { font: inherit; font-size: var(--text-sm); padding: var(--space-2) var(--space-3); border: 1.5px solid var(--border-strong); border-radius: var(--radius-pill); background: #fff; color: var(--ink); }
 .history thead th { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); font-weight: var(--weight-medium); }
 .history td { text-align: left; font-weight: var(--weight-regular); }
+.clickable { cursor: pointer; }
+.hbar-row.clickable:hover .hbar-fill { filter: brightness(1.08); }
+.hbar-row.dim { opacity: 0.4; }
+.seg-toggle { display: flex; gap: var(--space-1); flex-wrap: wrap; }
+.detail-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); margin: var(--space-3) 0; }
+.big.small-big { font-size: var(--text-xl); }
+.detail h4 { margin-top: var(--space-3); }
+.legend li.clickable:hover { text-decoration: underline; }
+.drill-body { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--line); }

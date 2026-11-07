@@ -3,6 +3,7 @@ import { getCosts, storeUrl, USE_MOCK } from '../api'
 import { DEMO_CLIENT } from '../demoClient'
 import { ChartCard, HBar } from '../components/Charts'
 import { segMark } from '../design/palette'
+import DrillDonut from '../components/DrillDonut'
 
 const money = (n) => `$${Math.round(n).toLocaleString()}`
 
@@ -72,6 +73,34 @@ export default function Store({ run }) {
               {costs.providers.map((p) => `${p.provider} $${p.usd.toFixed(3)}`).join(' · ')}
             </p>
           </ChartCard>
+        )}
+      </section>
+      <section className="cols">
+        <DrillDonut
+          title="Actions by status"
+          subtitle="Where your plan stands"
+          centerLabel="actions"
+          data={['proposed', 'approved', 'applied'].map((st, i) => ({
+            name: st,
+            value: run.actions.filter((a) => a.status === st).length,
+            color: ['var(--seg-atrisk)', 'var(--seg-loyal)', 'var(--seg-new)'][i],
+          })).filter((d) => d.value > 0)}
+          renderDetail={(st) => (
+            <ul>{run.actions.filter((a) => a.status === st).map((a) => <li key={a.id}>{a.title} <span className="pill">{a.segment}</span></li>)}</ul>
+          )}
+        />
+        {costs && (
+          <DrillDonut
+            title="Where the spend goes"
+            subtitle="Cost per run by provider"
+            centerLabel="per run"
+            format={(n) => `$${n.toFixed(3)}`}
+            data={costs.providers.map((p, i) => ({ name: p.provider, value: p.usd, color: ['var(--seg-champions)', 'var(--seg-loyal)', 'var(--seg-new)'][i % 3] }))}
+            renderDetail={(name) => {
+              const p = costs.providers.find((x) => x.provider === name)
+              return <p>{p.calls} calls · {p.tokens.toLocaleString()} tokens · ${p.usd.toFixed(3)}{p.model ? ` · ${p.model}` : ''}</p>
+            }}
+          />
         )}
       </section>
       <h2>Storefront</h2>

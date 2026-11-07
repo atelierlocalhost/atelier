@@ -1,8 +1,9 @@
+import { useState } from 'react'
 import { ChartCard, HBar } from '../components/Charts'
 import { segMark } from '../design/palette'
 
 // Real past results come from run.memory_used, e.g. "Win-back email to At risk: 12% redeemed".
-function parseMemory(items) {
+export function parseMemory(items) {
   return items
     .map((m) => {
       const x = m.match(/^(.*?) to (.*?): (\d+(?:\.\d+)?)% (.+)$/)
@@ -20,6 +21,7 @@ const SAMPLE = [
 ].map((s) => ({ ...s, source: 'sample' }))
 
 export default function MailingList({ run }) {
+  const [pick, setPick] = useState(null)
   const segs = run.insights.segments
   const total = segs.reduce((n, s) => n + s.count, 0)
   const subs = segs.map((s) => ({ name: s.name, value: s.count, color: segMark(s.name) }))
@@ -47,8 +49,19 @@ export default function MailingList({ run }) {
       </section>
 
       <ChartCard title="Past campaigns and promos" subtitle="Redemption or conversion rate" data={past.map((p) => ({ name: p.name, value: p.value }))} format={(n) => `${n}%`}>
-        <HBar data={chart} format={(n) => `${n}%`} />
+        <HBar data={chart} format={(n) => `${n}%`} selected={pick} onSelect={(n) => setPick(pick === n ? null : n)} />
       </ChartCard>
+      {pick && (() => {
+        const p = past.find((x) => x.name.slice(0, 22) === pick)
+        const avg = past.reduce((n, x) => n + x.value, 0) / past.length
+        return p && (
+          <div className="card memory" style={{ marginTop: 'var(--space-3)' }}>
+            <h3>{p.name}</h3>
+            <p>Sent to {p.segment}: {p.value}% {p.metric}. That is {p.value >= avg ? 'above' : 'below'} your {avg.toFixed(1)}% average across campaigns.</p>
+            <p className="muted">{p.source === 'memory' ? 'Recorded by the Strategy agent.' : 'Sample data.'}</p>
+          </div>
+        )
+      })()}
       <div className="card" style={{ marginTop: 'var(--space-3)' }}>
         <table className="data-table history">
           <thead>
