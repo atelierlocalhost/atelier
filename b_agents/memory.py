@@ -1,8 +1,12 @@
 """Shared agent memory. Owned by Person B.
 
-    read(agent, dataset, query) -> list[str]
+    read(agent, dataset, query, k=5) -> list[str]
     write(agent, dataset, record) -> None
+    write_many(agent, [(dataset, record), ...]) -> None     # one Cognee batch
+    read_records(agent, dataset, limit=None) -> list[dict]  # SQLite mirror only, newest first
     record_outcome(action, segment, result) -> None
+    record_observed(variant_id, observed, source, segment=None) -> dict   # Shopper Lab calibration
+    calibration_summary() -> {"mean_abs_error_pct", "n_observed"}
 
 Backed by Cognee (one Cognee dataset per memory dataset), with Cognee's LLM and
 embeddings pointed at Tinfoil so memory content never leaves the enclave.
@@ -23,15 +27,21 @@ import threading
 import time
 from pathlib import Path
 
-DATASETS = ("brand", "customers", "competitors", "outcomes")
+DATASETS = ("brand", "customers", "competitors", "outcomes", "lab_outcomes", "calibration")
+PERSONA = "persona:*"  # per-persona datasets: persona:<id>
 
 PERMISSIONS: dict[str, dict[str, set[str]]] = {
     "insights": {"read": {"customers", "outcomes", "brand"}, "write": {"customers", "outcomes"}},
-    "strategy": {"read": {"customers", "outcomes", "brand"}, "write": {"customers", "outcomes"}},
-    "social": {"read": {"brand", "outcomes"}, "write": set()},
+    "strategy": {"read": {"customers", "outcomes", "brand", "lab_outcomes", "calibration"},
+                 "write": {"customers", "outcomes"}},
+    "social": {"read": {"brand", "outcomes", "lab_outcomes"}, "write": set()},
     "competitor": {"read": set(), "write": {"competitors"}},
+    # Shopper Lab. Synthetic shoppers never see customers.
+    "persona_gen": {"read": {"customers"}, "write": set()},
+    "shopper": {"read": {"lab_outcomes", "brand", PERSONA}, "write": set()},
+    "lab_analyst": {"read": {"calibration"}, "write": {"lab_outcomes", "calibration", PERSONA}},
     # The platform itself: seeds brand voice and records action outcomes.
-    "system": {"read": set(DATASETS), "write": set(DATASETS)},
+    "system": {"read": set(DATASETS) | {PERSONA}, "write": set(DATASETS) | {PERSONA}},
 }
 
 BRAND_VOICE = (
@@ -47,11 +57,20 @@ FALLBACK_DB = os.getenv("ATELIER_MEMORY_DB", str(Path(__file__).resolve().parent
 COGNEE_PREFIX = "atelier_"
 
 
+def _is_persona(dataset: str) -> bool:
+    return bool(re.fullmatch(r"persona:[A-Za-z0-9_\-]+", dataset))
+
+
 def _check(agent: str, dataset: str, mode: str) -> None:
-    if dataset not in DATASETS:
+    if dataset not in DATASETS and not _is_persona(dataset):
         raise ValueError(f"unknown memory dataset: {dataset!r}")
-    if dataset not in PERMISSIONS.get(agent, {}).get(mode, set()):
+    allowed = PERMISSIONS.get(agent, {}).get(mode, set())
+    if dataset not in allowed and not (_is_persona(dataset) and PERSONA in allowed):
         raise PermissionError(f"agent {agent!r} may not {mode} memory dataset {dataset!r}")
+
+
+def _cognee_name(dataset: str) -> str:
+    return COGNEE_PREFIX + dataset.replace(":", "_")
 
 
 def _to_text(record: dict) -> str:
@@ -86,6 +105,11 @@ def _sqlite_write(agent: str, dataset: str, record: dict) -> None:
 
 def _norm(s: str) -> str:
     return " ".join(s.split()).lower()
+
+
+def _sqlite_count(dataset: str) -> int:
+    with _db() as conn:
+        return conn.execute("SELECT COUNT(*) FROM memory WHERE dataset = ?", (dataset,)).fetchone()[0]
 
 
 def _sqlite_texts(dataset: str) -> list[str]:
@@ -168,17 +192,23 @@ def _get_cognee():
     return _cognee
 
 
+_loop: asyncio.AbstractEventLoop | None = None
+_loop_lock = threading.Lock()
+
+
 def _run(coro):
-    """Run a coroutine from sync code, even if an event loop is already running."""
-    try:
-        asyncio.get_running_loop()
-    except RuntimeError:
-        return asyncio.run(coro)
-    out: dict = {}
-    t = threading.Thread(target=lambda: out.update(v=asyncio.run(coro)))
-    t.start()
-    t.join()
-    return out.get("v")
+    """Run a coroutine from sync code on ONE long-lived background event loop.
+
+    Cognee caches async clients bound to the loop they were created on, so a fresh
+    asyncio.run() per call breaks later calls ("Event loop is closed"). Safe to call
+    from any thread, including from inside another running loop.
+    """
+    global _loop
+    with _loop_lock:
+        if _loop is None:
+            _loop = asyncio.new_event_loop()
+            threading.Thread(target=_loop.run_forever, name="memory-loop", daemon=True).start()
+    return asyncio.run_coroutine_threadsafe(coro, _loop).result()
 
 
 def _flatten(results) -> list:
@@ -203,12 +233,21 @@ def _result_to_text(r) -> str:
     return str(getattr(r, "text", None) or getattr(r, "search_result", None) or r)
 
 
-def _cognee_write(dataset: str, text: str) -> None:
+def _cognee_write_many(pairs: list[tuple[str, str]]) -> None:
+    """Add (dataset, text) pairs in one event loop, one cognee.add per dataset."""
     cognee = _get_cognee()
     if cognee is None:
         return
-    _run(cognee.add(text, dataset_name=COGNEE_PREFIX + dataset))
-    _dirty.add(dataset)
+    grouped: dict[str, list[str]] = {}
+    for dataset, text in pairs:
+        grouped.setdefault(dataset, []).append(text)
+
+    async def add_all():
+        for dataset, texts in grouped.items():
+            await cognee.add(texts if len(texts) > 1 else texts[0], dataset_name=_cognee_name(dataset))
+
+    _run(add_all())
+    _dirty.update(grouped)
 
 
 def _cognee_read(dataset: str, query: str, k: int = 5) -> list[str]:
@@ -217,7 +256,7 @@ def _cognee_read(dataset: str, query: str, k: int = 5) -> list[str]:
         raise RuntimeError("cognee unavailable")
     from cognee import SearchType
 
-    name = COGNEE_PREFIX + dataset
+    name = _cognee_name(dataset)
     if dataset in _dirty:
         _run(cognee.cognify(datasets=[name]))
         _dirty.discard(dataset)
@@ -235,31 +274,54 @@ def _cognee_read(dataset: str, query: str, k: int = 5) -> list[str]:
 
 # ---------- public API ----------
 
-def read(agent: str, dataset: str, query: str) -> list[str]:
+def read(agent: str, dataset: str, query: str, k: int = 5) -> list[str]:
     _check(agent, dataset, "read")
     started = time.time()
+    if not _sqlite_count(dataset):  # every write lands in the mirror, so nothing to search
+        print(f"[memory] {agent:<8} read {dataset:<9} empty", flush=True)
+        return []
     if _use_cognee():
         try:
-            hits = _cognee_read(dataset, query)
+            hits = _cognee_read(dataset, query, k)
             if hits:
                 print(f"[memory] {agent:<8} read {dataset:<9} via cognee  hits={len(hits)} latency={time.time() - started:.2f}s", flush=True)
                 return hits
             print(f"[memory] {agent:<8} read {dataset:<9} cognee returned nothing, using sqlite", flush=True)
         except Exception as e:  # noqa: BLE001
             print(f"[memory] {agent:<8} read {dataset:<9} cognee FAILED, using sqlite: {str(e)[:200]}", flush=True)
-    hits = _sqlite_read(dataset, query)
+    hits = _sqlite_read(dataset, query, k)
     print(f"[memory] {agent:<8} read {dataset:<9} via sqlite  hits={len(hits)}", flush=True)
     return hits
 
 
+def read_records(agent: str, dataset: str, limit: int | None = None) -> list[dict]:
+    """Structured records from the SQLite mirror, newest first. No Cognee round trip."""
+    _check(agent, dataset, "read")
+    sql = "SELECT record_json FROM memory WHERE dataset = ? ORDER BY created_at DESC, id DESC"
+    with _db() as conn:
+        rows = conn.execute(sql + (" LIMIT ?" if limit else ""), (dataset, limit) if limit else (dataset,)).fetchall()
+    return [json.loads(r[0]) for r in rows]
+
+
 def write(agent: str, dataset: str, record: dict) -> None:
-    _check(agent, dataset, "write")
-    _sqlite_write(agent, dataset, record)
-    if _use_cognee():
+    write_many(agent, [(dataset, record)])
+
+
+def write_many(agent: str, items: list[tuple[str, dict]]) -> None:
+    """Write several records (any datasets the agent may write) with one Cognee batch."""
+    for dataset, _ in items:
+        _check(agent, dataset, "write")
+    for dataset, record in items:
+        _sqlite_write(agent, dataset, record)
+    if _use_cognee() and items:
+        started = time.time()
         try:
-            _cognee_write(dataset, _to_text(record))
+            _cognee_write_many([(d, _to_text(r)) for d, r in items])
+            if len(items) > 1:
+                print(f"[memory] {agent:<8} wrote {len(items)} records to cognee in {time.time() - started:.1f}s",
+                      flush=True)
         except Exception as e:  # noqa: BLE001
-            print(f"[memory] {agent:<8} write {dataset} cognee FAILED (kept in sqlite): {str(e)[:200]}", flush=True)
+            print(f"[memory] {agent:<8} write cognee FAILED (kept in sqlite): {str(e)[:200]}", flush=True)
 
 
 def record_outcome(action: str, segment: str, result: str) -> None:
@@ -268,6 +330,36 @@ def record_outcome(action: str, segment: str, result: str) -> None:
         "text": f"{action} to {segment}: {result}",
         "action": action, "segment": segment, "result": result,
     })
+
+
+def record_observed(variant_id: int, observed: float, source: str, segment: str | None = None) -> dict:
+    """Compare a real observed score (same 0-1 scale as the lab score) to the last lab prediction.
+
+    Writes the comparison to calibration and a lesson to lab_outcomes, e.g.
+    "lab overrates lifestyle for At risk by 21%". Returns the calibration record.
+    """
+    pred = next((r for r in read_records("lab_analyst", "calibration")
+                 if r.get("type") == "prediction" and r.get("variant_id") == variant_id), None)
+    if pred is None:
+        raise ValueError(f"no lab prediction recorded for variant {variant_id}")
+    if observed <= 0:
+        raise ValueError("observed must be > 0")
+    predicted = pred["by_segment"][segment] if segment else pred["score"]
+    error_pct = (predicted - observed) / observed * 100
+    lesson = (f"lab {'overrates' if error_pct > 0 else 'underrates'} {pred['style']} "
+              f"for {segment or 'all shoppers'} by {abs(error_pct):.0f}%")
+    rec = {"type": "observed", "text": f"{lesson} (observed {observed:.3f} via {source}, predicted {predicted:.3f})",
+           "variant_id": variant_id, "segment": segment, "style": pred["style"], "lab_run_id": pred["lab_run_id"],
+           "predicted": round(predicted, 4), "observed": round(observed, 4), "error_pct": round(error_pct, 1),
+           "source": source}
+    write_many("lab_analyst", [("calibration", rec), ("lab_outcomes", {"text": lesson, "type": "calibration"})])
+    return rec
+
+
+def calibration_summary() -> dict:
+    obs = [r for r in read_records("lab_analyst", "calibration") if r.get("type") == "observed"]
+    mae = sum(abs(r["error_pct"]) for r in obs) / len(obs) if obs else 0.0
+    return {"mean_abs_error_pct": round(mae, 1), "n_observed": len(obs)}
 
 
 def seed_brand() -> None:

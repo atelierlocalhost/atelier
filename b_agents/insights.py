@@ -21,7 +21,9 @@ PROMPT = (Path(__file__).parent / "prompts" / "insights.txt").read_text()
 def load_frames(db_path: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     with sqlite3.connect(db_path) as conn:
         customers = pd.read_sql("SELECT id, signup_date FROM customers", conn)
-        orders = pd.read_sql("SELECT customer_id, amount, created_at FROM orders", conn)
+        orders = pd.read_sql(
+            "SELECT o.customer_id, o.amount, o.created_at, p.category FROM orders o "
+            "LEFT JOIN products p ON p.id = o.product_id", conn)
     orders["created_at"] = pd.to_datetime(orders["created_at"])
     return customers, orders
 
@@ -61,8 +63,11 @@ def compute_rfm(customers: pd.DataFrame, orders: pd.DataFrame, as_of=None) -> pd
     return rfm
 
 
-def summarize(rfm: pd.DataFrame) -> dict:
-    """Aggregates only, no PII. This is all the LLM ever sees."""
+def summarize(rfm: pd.DataFrame, orders: pd.DataFrame | None = None) -> dict:
+    """Aggregates only, no PII. This is all the LLM ever sees.
+
+    With `orders` (needs a "category" column), each segment also gets its top 2 categories.
+    """
     total_rev = rfm["monetary"].sum()
     by_seg = rfm.groupby("segment").agg(
         count=("monetary", "size"), avg_spend=("monetary", "mean"), revenue=("monetary", "sum"),
@@ -80,6 +85,10 @@ def summarize(rfm: pd.DataFrame) -> dict:
             "avg_recency_days": round(float(r["avg_recency_days"]), 1),
             "avg_orders": round(float(r["avg_orders"]), 2), "churn_risk": int(r["churn_risk"]),
         })
+    if orders is not None and "category" in orders:
+        cats = orders.assign(segment=orders["customer_id"].map(rfm["segment"])).dropna(subset=["category"])
+        for s in segments:
+            s["top_categories"] = cats[cats["segment"] == s["name"]]["category"].value_counts().head(2).index.tolist()
     return {
         "customers": int(len(rfm)), "revenue": round(float(total_rev), 2),
         "churn_risk_customers": int(rfm["churn_risk"].sum()), "segments": segments,
@@ -122,7 +131,7 @@ def explain(stats: dict) -> tuple[dict, str]:
 def run(ctx: dict) -> dict:
     customers, orders = load_frames(ctx["db_path"])
     rfm = compute_rfm(customers, orders, ctx.get("as_of"))
-    stats = summarize(rfm)
+    stats = summarize(rfm, orders)
     text, source = explain(stats)
     insights = {
         "segments": [{k: s[k] for k in ("name", "count", "avg_spend")} for s in stats["segments"]],

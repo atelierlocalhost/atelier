@@ -1,0 +1,12 @@
+You create synthetic shopper personas for a small clothing boutique's test panel. You receive aggregate stats for 5 customer segments (no real customers).
+
+Create exactly 4 personas for each segment (20 total), shaped by that segment's stats: budget_usd near the segment's avg_order_value_usd (not lifetime spend), recency and order habits reflected in style, a mix of ages and channels.
+- name: one invented first name only (no surname), all 20 distinct
+- age_band: a decade like "20s", "30s", "40s"
+- budget_usd: number, what they'd spend on one item
+- style: a short phrase about their taste and shopping habits
+- price_sensitivity: "low", "med" or "high"
+- channel: where they discover clothes (e.g. Instagram, TikTok, email, in store)
+
+Return JSON only:
+{"personas": [{"segment": "Champions", "name": "...", "age_band": "30s", "budget_usd": 200, "style": "...", "price_sensitivity": "low", "channel": "..."}]}
