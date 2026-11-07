@@ -4,11 +4,12 @@ import Store from './tabs/Store'
 import Insights from './tabs/Insights'
 import Actions from './tabs/Actions'
 import Social from './tabs/Social'
+import Emails from './tabs/Emails'
 import Compare from './tabs/Compare'
 import CostPanel from './components/CostPanel'
 import StyleGuide from './design/StyleGuide'
 
-const TABS = ['Store', 'Insights', 'Actions', 'Social', 'Compare']
+const TABS = ['Store', 'Insights', 'Actions', 'Emails', 'Social', 'Compare']
 
 export default function App() {
   if (window.location.hash === '#design') return <StyleGuide />
@@ -80,6 +81,7 @@ export default function App() {
         {tab === 'Store' && <Store run={run} />}
         {run && tab === 'Insights' && <Insights run={run} />}
         {run && tab === 'Actions' && <Actions run={run} onChange={load} />}
+        {run && tab === 'Emails' && <Emails run={run} onChange={load} />}
         {run && tab === 'Social' && <Social run={run} />}
         {tab === 'Compare' && <Compare runs={runs} />}
         {!run && !error && tab !== 'Compare' && tab !== 'Store' && (
