@@ -1,60 +1,80 @@
-import { storeUrl } from '../api'
+import { useEffect, useState } from 'react'
+import { getCosts, storeUrl } from '../api'
+import { ChartCard, HBar } from '../components/Charts'
+import { segMark } from '../design/palette'
 
 const money = (n) => `$${Math.round(n).toLocaleString()}`
 
-function stats(run) {
-  const segs = run.insights.segments
-  const by = (name) => segs.find((s) => s.name === name)
-  const customers = segs.reduce((n, s) => n + s.count, 0)
-  const revenue = segs.reduce((n, s) => n + s.count * s.avg_spend, 0)
-  const repeat = (by('Champions')?.count || 0) + (by('Loyal')?.count || 0)
-  const top = [...segs].sort((a, b) => b.count * b.avg_spend - a.count * a.avg_spend)[0]
-  return { customers, revenue, repeat, top, atRisk: by('At risk'), fresh: by('New') }
-}
-
-function Tile({ label, value, sub }) {
+function Tile({ tint, label, value, sub }) {
   return (
-    <div className="card">
-      <p className="muted">{label}</p>
+    <div className={`tile ${tint}`}>
+      <p className="caption">{label}</p>
       <p className="big">{value}</p>
-      {sub && <p className="muted">{sub}</p>}
+      <p className="muted">{sub}</p>
     </div>
   )
 }
 
 export default function Store({ run }) {
   const url = storeUrl()
-  const s = run && stats(run)
-  const pending = run ? run.actions.filter((a) => a.status === 'proposed').length : 0
-  const gap = run?.competitors[0]
+  const [costs, setCosts] = useState(null)
+  useEffect(() => {
+    if (run) getCosts(run.run_id).then(setCosts).catch(() => setCosts(null))
+  }, [run])
+
+  if (!run) return <p className="muted">No stats yet. Click Run again to analyze your store.</p>
+
+  const segs = run.insights.segments
+  const by = (n) => segs.find((s) => s.name === n)
+  const customers = segs.reduce((n, s) => n + s.count, 0)
+  const revenue = segs.reduce((n, s) => n + s.count * s.avg_spend, 0)
+  const repeat = (by('Champions')?.count || 0) + (by('Loyal')?.count || 0)
+  const pending = run.actions.filter((a) => a.status === 'proposed').length
+  const revData = segs.map((s) => ({ name: s.name, value: Math.round(s.count * s.avg_spend), color: segMark(s.name) }))
 
   return (
     <>
-      <h2>Your store</h2>
-      {s ? (
-        <>
-          <section className="grid">
-            <Tile label="Customers" value={s.customers} sub={`${s.fresh?.count ?? 0} new recently`} />
-            <Tile label="Lifetime revenue" value={money(s.revenue)} sub={`${money(s.revenue / s.customers)} per customer`} />
-            <Tile label="Repeat buyers" value={`${Math.round((s.repeat / s.customers) * 100)}%`} sub="Champions + Loyal" />
-            <Tile label="At risk" value={s.atRisk?.count ?? 0} sub="need a win-back" />
-            <Tile label="Open actions" value={pending} sub="waiting for approval" />
-            {gap && <Tile label="Price vs competitor" value={`${gap.price_gap_pct}%`} sub={gap.name} />}
-          </section>
-          <section className="card">
-            <h3>Overview</h3>
-            <ul>
-              <li>Best segment: {s.top.name} ({s.top.count} customers, {money(s.top.count * s.top.avg_spend)} lifetime).</li>
-              {run.insights.working[0] && <li>Working: {run.insights.working[0]}</li>}
-              {run.insights.fix[0] && <li>Fix first: {run.insights.fix[0]}</li>}
-              {pending > 0 && <li>{pending} proposed actions are ready on the Actions tab.</li>}
-            </ul>
-          </section>
-        </>
-      ) : (
-        <p className="muted">No stats yet. Click Run again to analyze your store.</p>
-      )}
-      <h3>Storefront</h3>
+      <div className="card hero">
+        <div>
+          <h2>Your store at a glance</h2>
+          <p>{customers} customers, {money(revenue)} in lifetime revenue, {pending} actions waiting for you.</p>
+        </div>
+        <img src="/ellipse.png" alt="" />
+      </div>
+      <section className="grid">
+        <Tile tint="lavender" label="Customers" value={customers} sub={`${by('New')?.count ?? 0} new recently`} />
+        <Tile tint="peach" label="Lifetime revenue" value={money(revenue)} sub={`${money(revenue / customers)} per customer`} />
+        <Tile tint="sky" label="Repeat buyers" value={`${Math.round((repeat / customers) * 100)}%`} sub="Champions and Loyal" />
+        <Tile tint="pink" label="At risk" value={by('At risk')?.count ?? 0} sub="need a win-back" />
+      </section>
+      <section className="cols">
+        <ChartCard title="Revenue by segment" subtitle="Lifetime, USD" data={revData} format={money}>
+          <HBar data={revData} format={money} />
+        </ChartCard>
+        {costs && (
+          <ChartCard
+            title="Cost per run"
+            subtitle={`${Math.round(costs.savings_pct)}% cheaper than a frontier model`}
+            data={[
+              { name: 'Atelier', value: costs.total_usd },
+              { name: 'Frontier model', value: costs.frontier_equiv_usd },
+            ]}
+            format={(n) => `$${n.toFixed(3)}`}
+          >
+            <HBar
+              data={[
+                { name: 'Atelier', value: costs.total_usd, color: 'var(--seg-champions)' },
+                { name: 'Frontier model', value: costs.frontier_equiv_usd, color: 'var(--seg-loyal)' },
+              ]}
+              format={(n) => `$${n.toFixed(3)}`}
+            />
+            <p className="muted" style={{ marginTop: 'var(--space-3)' }}>
+              {costs.providers.map((p) => `${p.provider} $${p.usd.toFixed(3)}`).join(' · ')}
+            </p>
+          </ChartCard>
+        )}
+      </section>
+      <h2>Storefront</h2>
       {url ? (
         <iframe className="store-frame" src={url} title="Storefront" />
       ) : (

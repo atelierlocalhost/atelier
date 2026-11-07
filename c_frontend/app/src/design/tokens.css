@@ -1,36 +1,74 @@
 /* Atelier design tokens. Single source of truth: change values here, not in components.
-   Brand colors come from c_frontend/logo_inspo (purple ellipse, lime wordmark). */
+   Light only. Brand colors come from c_frontend/logo_inspo. */
 :root {
   /* Brand */
   --purple-900: #24122f;
-  --purple-800: #321a42;
-  --purple-700: #3c204f; /* brand purple */
-  --purple-300: #b9a3c9;
-  --lime-100: #f7f9ec;
-  --lime-200: #ebf2ca;   /* brand lime */
-  --lime-300: #dfe6c0;
+  --purple-700: #3c204f;   /* brand purple: primary actions, sidebar logo block */
+  --purple-500: #6b3fa0;
+  --lime-200: #ebf2ca;     /* brand lime: ONLY the wordmark on purple */
+  --cream-100: #f6f1e4;    /* warm text on purple */
 
-  /* Semantic (light) */
-  --bg: var(--lime-100);
-  --surface: #ffffff;
-  --card: var(--surface);
+  /* Page: warm cream with soft color washes */
+  --bg: #faf6ee;
+  --wash-lavender: #e3d8f5;
+  --wash-blush: #f9d9e8;
+  --wash-butter: #f8edb9;
+  --wash-sky: #d6e5f9;
+
+  /* Pastel tints for cards (fills, never text) */
+  --tint-lavender: #ddd0f3;
+  --tint-sky: #d2e2f8;
+  --tint-mint: #cfefe2;
+  --tint-peach: #fcd9c2;
+  --tint-pink: #f9d3e4;
+  --tint-butter: #f8edb9;
+
+  /* Categorical chart marks (validated, fixed order) */
+  --seg-champions: #6b3fa0;
+  --seg-loyal: #3e7cc4;
+  --seg-new: #2fa37a;
+  --seg-atrisk: #e4793c;
+  --seg-hibernating: #c94f8a;
+
+  /* Text */
   --ink: #2b1838;
   --muted: #6f6479;
-  --line: var(--lime-300);
+
+  /* Glass */
+  --glass: rgba(255, 255, 255, 0.55);
+  --glass-strong: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --glass-blur: blur(20px) saturate(1.4);
+  --shadow: 0 8px 32px rgba(60, 32, 79, 0.10);
+  --line: rgba(60, 32, 79, 0.12);
+  --border-strong: rgba(60, 32, 79, 0.45);  /* inputs and anything that must read clearly on glass */
+
+  /* Semantic */
   --accent: var(--purple-700);
-  --accent-ink: var(--lime-200);
-  --good: #e3efc4;
-  --bad: #efe1ee;
-  --hl: #f3f8d2;
+  --accent-ink: var(--cream-100);
+  --good: var(--tint-mint);
+  --bad: var(--tint-peach);
+  --hl: var(--tint-butter);
   --danger: #b3261e;
 
-  /* Type */
-  --font-serif: Georgia, 'Times New Roman', serif;
-  --text-xs: 0.75rem;
-  --text-sm: 0.85rem;
-  --text-md: 1rem;
-  --text-lg: 1.3rem;
-  --text-xl: 2rem;
+  /* Type: 1.25 ratio, 16px base, rem units so it follows user browser settings */
+  --font-serif: Georgia, 'Times New Roman', serif;   /* headings, matches the wordmark */
+  --font-sans: 'Inter', -apple-system, 'Segoe UI', system-ui, sans-serif;  /* UI and body */
+  --text-xs: 0.75rem;      /* 12px floor: captions, tags, axis labels (uppercase +0.04em) */
+  --text-sm: 0.875rem;     /* 14px: secondary text, table cells, nav */
+  --text-md: 1rem;         /* 16px: body */
+  --text-lg: 1.25rem;      /* 20px: card titles (h3) */
+  --text-xl: 1.5625rem;    /* 25px: section titles (h2) */
+  --text-2xl: 1.953rem;    /* 31px: page title (h1) */
+  --text-stat: 2.441rem;   /* 39px: headline numbers */
+  --lh-tight: 1.2;         /* headings */
+  --lh-snug: 1.1;          /* stat numbers */
+  --lh-body: 1.6;          /* body */
+  --lh-small: 1.5;         /* secondary text */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --measure: 65ch;         /* max line length for prose */
 
   /* Space (4px base) */
   --space-1: 4px;
@@ -41,27 +79,13 @@
   --space-6: 48px;
 
   /* Shape */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
   --radius-pill: 999px;
-  --content-width: 1100px;
+  --content-width: 1180px;
 
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   color: var(--ink);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: var(--purple-900);
-    --surface: var(--purple-800);
-    --ink: var(--lime-200);
-    --muted: #b9b4a8;
-    --line: #4c2d60;
-    --accent: var(--lime-200);
-    --accent-ink: var(--purple-700);
-    --good: #3f4a28;
-    --bad: #4d2a4d;
-    --hl: #4a4a2a;
-  }
+  color-scheme: light;
 }

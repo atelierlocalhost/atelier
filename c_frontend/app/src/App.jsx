@@ -1,19 +1,28 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getLatestRun, getRun, startRun, USE_MOCK } from './api'
+import { getSession, signIn, signOut } from './auth'
 import Store from './tabs/Store'
 import Insights from './tabs/Insights'
 import Actions from './tabs/Actions'
 import Social from './tabs/Social'
-import Emails from './tabs/Emails'
 import Compare from './tabs/Compare'
-import CostPanel from './components/CostPanel'
+import Connect from './tabs/Connect'
+import SignIn from './tabs/SignIn'
+import Icon from './components/Icons'
 import StyleGuide from './design/StyleGuide'
 
-const TABS = ['Store', 'Insights', 'Actions', 'Emails', 'Social', 'Compare']
+const TABS = [
+  { id: 'store', label: 'Your store', icon: 'store' },
+  { id: 'insights', label: 'Insights', icon: 'insights' },
+  { id: 'actions', label: 'Actions', icon: 'actions' },
+  { id: 'social', label: 'Social and email', icon: 'social' },
+  { id: 'compare', label: 'Compare runs', icon: 'compare' },
+  { id: 'connect', label: 'Connections', icon: 'emails' },
+]
 
 export default function App() {
-  if (window.location.hash === '#design') return <StyleGuide />
-  const [tab, setTab] = useState('Store')
+  const [session, setSession] = useState(getSession)
+  const [tab, setTab] = useState('store')
   const [run, setRun] = useState(null)
   const [runs, setRuns] = useState([])
   const [busy, setBusy] = useState(false)
@@ -36,8 +45,8 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    load()
-  }, [load])
+    if (session) load()
+  }, [session, load])
 
   async function runAgain() {
     setBusy(true)
@@ -53,42 +62,48 @@ export default function App() {
     }
   }
 
+  if (window.location.hash === '#design') return <StyleGuide />
+  if (!session) return <SignIn onSignIn={(email) => setSession(signIn(email))} />
+
+  const current = TABS.find((t) => t.id === tab)
+  const needsRun = ['insights', 'actions', 'social'].includes(tab)
+
   return (
-    <div className="app">
-      <header className="brandbar">
-        <div className="brandbar-in">
-          <div>
-            <img className="logo" src="/logo.png" alt="Atelier" />
-            <p className="muted">AI operator for small boutiques{USE_MOCK && ' (mock data)'}</p>
-          </div>
-          <div className="top-right">
-            {run && <span className="pill">{run.run_id}</span>}
-            <button className="btn primary" onClick={runAgain} disabled={busy}>
-              {busy ? 'Running (up to 90s)...' : 'Run again'}
+    <div className="shell">
+      <aside className="sidebar">
+        <div className="logo-block"><img className="logo" src="/logo.png" alt="Atelier" /></div>
+        <nav className="nav" aria-label="Main">
+          {TABS.map((t) => (
+            <button key={t.id} className={t.id === tab ? 'nav-item active' : 'nav-item'} onClick={() => setTab(t.id)}>
+              <Icon name={t.icon} />
+              {t.label}
             </button>
-          </div>
-        </div>
-      </header>
-      <nav className="tabs">
-        {TABS.map((t) => (
-          <button key={t} className={t === tab ? 'tab active' : 'tab'} onClick={() => setTab(t)}>
-            {t}
+          ))}
+        </nav>
+        <div className="side-foot">
+          {run && <span className="pill top-pill">{run.run_id}{USE_MOCK && ' · mock data'}</span>}
+          <button className="btn primary" onClick={runAgain} disabled={busy}>
+            {busy ? 'Running (up to 90s)...' : 'Run again'}
           </button>
-        ))}
-      </nav>
-      {error && <p className="error">{error}</p>}
-      <main>
-        {tab === 'Store' && <Store run={run} />}
-        {run && tab === 'Insights' && <Insights run={run} />}
-        {run && tab === 'Actions' && <Actions run={run} onChange={load} />}
-        {run && tab === 'Emails' && <Emails run={run} onChange={load} />}
-        {run && tab === 'Social' && <Social run={run} />}
-        {tab === 'Compare' && <Compare runs={runs} />}
-        {!run && !error && tab !== 'Compare' && tab !== 'Store' && (
-          <p className="muted">No runs yet. Click Run again to start one.</p>
-        )}
-      </main>
-      <CostPanel runId={run?.run_id} />
+          <button className="btn" onClick={() => { signOut(); setSession(null) }}>Sign out</button>
+        </div>
+      </aside>
+      <div className="content">
+        <header className="page-head">
+          <p className="caption">{session.email}</p>
+          <h1>{tab === 'store' ? 'Welcome back' : current.label}</h1>
+        </header>
+        {error && <p className="error">{error}</p>}
+        <main>
+          {tab === 'store' && <Store run={run} />}
+          {run && tab === 'insights' && <Insights run={run} />}
+          {run && tab === 'actions' && <Actions run={run} onChange={load} />}
+          {run && tab === 'social' && <Social run={run} onChange={load} />}
+          {tab === 'compare' && <Compare runs={runs} />}
+          {tab === 'connect' && <Connect email={session.email} />}
+          {!run && !error && needsRun && <p className="muted">No runs yet. Click Run again to start one.</p>}
+        </main>
+      </div>
     </div>
   )
 }

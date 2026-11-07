@@ -40,7 +40,7 @@ function Email({ action, recipients, onApplied }) {
       <div className="comp-head">
         <div>
           <span className="pill">{action.type === 'coupon' ? 'Promo' : 'Win-back'}</span>{' '}
-          <span className="pill alt">{action.segment}</span>
+          <span className="pill">{action.segment}</span>
           <h3>{action.title}</h3>
         </div>
         <span className={done ? 'pill ok' : 'pill'}>{done ? 'Applied' : 'Proposed'}</span>
@@ -79,7 +79,7 @@ export default function Emails({ run, onChange }) {
   if (emails.length === 0) return <p className="muted">No email campaigns proposed in this run.</p>
   return (
     <>
-      <h2>Email campaigns</h2>
+      <h2 style={{ marginTop: 0 }}>Email campaigns</h2>
       <p className="muted">Proposed by the Strategy agent. Edit the draft, then approve.</p>
       <section className="stack">
         {emails.map((a) => (
