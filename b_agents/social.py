@@ -70,12 +70,8 @@ def run(ctx: dict) -> dict:
         "trends": TRENDS["trends"],
         "sounds": TRENDS["sounds"],
     }
-    try:
-        posts = llm_util.chat_json("social", [
-            {"role": "system", "content": PROMPT},
-            {"role": "user", "content": json.dumps(payload)},
-        ], validate_posts, json_mode=False)
-    except Exception as e:  # noqa: BLE001
-        print(f"[social] LLM unavailable, using templated posts: {e}")
-        posts = validate_posts(_fallback_posts(actions))
-    return {"social": posts}
+    posts, source = llm_util.with_fallback("social", lambda: llm_util.chat_json("social", [
+        {"role": "system", "content": PROMPT},
+        {"role": "user", "content": json.dumps(payload)},
+    ], validate_posts, json_mode=False), lambda: validate_posts(_fallback_posts(actions)))
+    return {"social": posts, "social_source": source}

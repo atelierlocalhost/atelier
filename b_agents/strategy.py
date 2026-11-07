@@ -111,21 +111,19 @@ def _fallback_plan(insights: dict, competitors: list[dict], memory_used: list[st
 # ---------- agent ----------
 
 def plan(insights: dict, competitors: list[dict], memory_used: list[str], stats: dict | None = None,
-         start_id: int = 1) -> list[dict]:
+         start_id: int = 1) -> tuple[list[dict], str]:
+    """Returns (actions, source) where source is "llm" or "fallback"."""
     payload = {"insights": insights, "segment_stats": (stats or {}).get("segments"),
                "competitors": competitors, "past_outcomes": memory_used}
-    try:
-        return llm_util.chat_json("strategy", [
-            {"role": "system", "content": PROMPT},
-            {"role": "user", "content": json.dumps(payload)},
-        ], lambda out: validate_actions(out, start_id))
-    except Exception as e:  # noqa: BLE001
-        print(f"[strategy] LLM unavailable, using rule-based planner: {e}")
-    return validate_actions(_fallback_plan(insights, competitors, memory_used), start_id)
+    return llm_util.with_fallback("strategy", lambda: llm_util.chat_json("strategy", [
+        {"role": "system", "content": PROMPT},
+        {"role": "user", "content": json.dumps(payload)},
+    ], lambda out: validate_actions(out, start_id)),
+        lambda: validate_actions(_fallback_plan(insights, competitors, memory_used), start_id))
 
 
 def run(ctx: dict) -> dict:
     memory_used = memory.read("strategy", "outcomes", MEMORY_QUERY)
-    actions = plan(ctx["insights"], ctx.get("competitors", []), memory_used,
-                   ctx.get("insights_stats"), ctx.get("next_action_id", 1))
-    return {"actions": actions, "memory_used": memory_used}
+    actions, source = plan(ctx["insights"], ctx.get("competitors", []), memory_used,
+                           ctx.get("insights_stats"), ctx.get("next_action_id", 1))
+    return {"actions": actions, "memory_used": memory_used, "strategy_source": source}

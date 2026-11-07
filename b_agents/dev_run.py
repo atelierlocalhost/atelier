@@ -9,13 +9,18 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sqlite3
 from pathlib import Path
 
-from a_platform.agents import competitor
-from b_agents import insights, memory, social, strategy
-from b_agents.fixture import make_fixture
-from shared.contracts import load_mock
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+
+from a_platform.agents import competitor  # noqa: E402
+from b_agents import insights, memory, social, strategy  # noqa: E402
+from b_agents.fixture import make_fixture  # noqa: E402
+from shared.contracts import load_mock  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 DEV = Path(__file__).resolve().parent / ".dev"
@@ -51,11 +56,13 @@ def run_pipeline(run_id: str, db_path: str, next_action_id: int = 1) -> dict:
         "memory_used": ctx["memory_used"],
         "social": ctx["social"],
         "costs": load_mock()["costs"],  # A computes real costs in the orchestrator
+        # dev-only, outside the contract: which path each agent took
+        "sources": {k: ctx.get(f"{k}_source") for k in ("insights", "strategy", "social")},
     }
 
 
 def show_actions(label: str, run: dict) -> None:
-    print(f"\n{label}  memory_used={run['memory_used']}")
+    print(f"\n{label}  sources={run['sources']}  memory_used={run['memory_used']}")
     for a in run["actions"]:
         print(f"  #{a['id']} {a['type']:<17} {a['segment']:<12} {a['title']}")
         print(f"      why: {a['why']}")
@@ -68,7 +75,7 @@ def main() -> None:
 
     DEV.mkdir(exist_ok=True)
     db_path = pick_db(args.fixture)
-    print(f"db: {db_path}")
+    print(f"db: {db_path}  memory_backend={os.getenv('MEMORY_BACKEND', 'auto')}")
     memory.reset()
     memory.seed_brand()
 

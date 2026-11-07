@@ -27,7 +27,8 @@ def test_insights_shape(ctx):
 
 def test_strategy_shape(ctx):
     out = strategy.run(ctx)
-    assert set(out) == {"actions", "memory_used"}
+    assert set(out) == {"actions", "memory_used", "strategy_source"}
+    assert out["strategy_source"] == "fallback"  # no keys in tests
     assert 3 <= len(out["actions"]) <= 5
     for a in out["actions"]:
         assert set(a) == keys(Action)

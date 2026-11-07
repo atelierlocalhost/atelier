@@ -1,8 +1,8 @@
 """Insights agent: RFM segmentation in pandas, LLM (Tinfoil) only explains the numbers.
 
 run(ctx) needs ctx["db_path"]; optional ctx["as_of"] (ISO date, defaults to the
-day after the latest order). Returns {"insights": Insights, "insights_stats": {...}}.
-"insights_stats" is extra context for strategy and is not part of the run JSON.
+day after the latest order). Returns {"insights": Insights, "insights_stats": {...},
+"insights_source": "llm" | "fallback"}. The extra keys are not part of the run JSON.
 """
 from __future__ import annotations
 
@@ -111,22 +111,19 @@ def _validate(out: dict) -> dict:
     return {"working": working, "fix": fix}
 
 
-def explain(stats: dict) -> dict:
-    try:
-        return llm_util.chat_json("insights", [
-            {"role": "system", "content": PROMPT},
-            {"role": "user", "content": json.dumps(stats)},
-        ], _validate)
-    except Exception as e:  # noqa: BLE001
-        print(f"[insights] LLM unavailable, using rule-based text: {e}")
-    return _fallback_explain(stats)
+def explain(stats: dict) -> tuple[dict, str]:
+    """Returns (text, source) where source is "llm" or "fallback"."""
+    return llm_util.with_fallback("insights", lambda: llm_util.chat_json("insights", [
+        {"role": "system", "content": PROMPT},
+        {"role": "user", "content": json.dumps(stats)},
+    ], _validate), lambda: _fallback_explain(stats))
 
 
 def run(ctx: dict) -> dict:
     customers, orders = load_frames(ctx["db_path"])
     rfm = compute_rfm(customers, orders, ctx.get("as_of"))
     stats = summarize(rfm)
-    text = explain(stats)
+    text, source = explain(stats)
     insights = {
         "segments": [{k: s[k] for k in ("name", "count", "avg_spend")} for s in stats["segments"]],
         "working": text["working"],
@@ -137,4 +134,4 @@ def run(ctx: dict) -> dict:
         "text": f"Run {ctx.get('run_id', '?')}: {stats['customers']} customers; {seg_line}; "
                 f"{stats['churn_risk_customers']} churn risk.",
     })
-    return {"insights": insights, "insights_stats": stats}
+    return {"insights": insights, "insights_stats": stats, "insights_source": source}

@@ -84,6 +84,15 @@ def _sqlite_write(agent: str, dataset: str, record: dict) -> None:
         )
 
 
+def _norm(s: str) -> str:
+    return " ".join(s.split()).lower()
+
+
+def _sqlite_texts(dataset: str) -> list[str]:
+    with _db() as conn:
+        return [r[0] for r in conn.execute("SELECT text FROM memory WHERE dataset = ?", (dataset,))]
+
+
 def _sqlite_read(dataset: str, query: str, k: int = 5) -> list[str]:
     with _db() as conn:
         rows = conn.execute(
@@ -105,21 +114,32 @@ def _configure_cognee_env() -> None:
         "LLM_MODEL": "openai/" + os.getenv("LLM_MODEL", "gpt-oss-120b").removeprefix("openai/"),
         "LLM_ENDPOINT": os.getenv("LLM_ENDPOINT", "https://inference.tinfoil.sh/v1"),
         "LLM_API_KEY": key,
-        "EMBEDDING_PROVIDER": "custom",
-        "EMBEDDING_MODEL": "openai/" + os.getenv("EMBEDDING_MODEL", "nomic-embed-text").removeprefix("openai/"),
+        # LiteLLM-routed providers ("custom", "openai") send `dimensions`, which LiteLLM rejects
+        # for openai/* models; openai_compatible calls Tinfoil directly with the bare model id.
+        "EMBEDDING_PROVIDER": "openai_compatible",
+        "EMBEDDING_MODEL": os.getenv("EMBEDDING_MODEL", "nomic-embed-text").removeprefix("openai/"),
         "EMBEDDING_ENDPOINT": os.getenv("EMBEDDING_ENDPOINT", "https://inference.tinfoil.sh/v1"),
         "EMBEDDING_API_KEY": key,
         "EMBEDDING_DIMENSIONS": "768",
-        "ENABLE_BACKEND_ACCESS_CONTROL": "False",  # our permission map is enforced here instead
+        # Per-dataset isolated stores; without it chunk search leaks across datasets.
+        "ENABLE_BACKEND_ACCESS_CONTROL": "True",
         "CACHING": "false",  # Cognee 1.x session memory; not needed, avoids an extra cache service
         "TELEMETRY_DISABLED": "1",
         "SYSTEM_ROOT_DIRECTORY": str(ROOT / ".cognee_system"),
         "DATA_ROOT_DIRECTORY": str(ROOT / ".cognee_data"),
     }
-    # LLM_MODEL / EMBEDDING_MODEL / *_ENDPOINT are shared with .env, so always set the prefixed form.
+    # Values the memory design depends on always win over .env; the rest are just defaults.
+    forced = ("LLM_MODEL", "LLM_API_KEY", "EMBEDDING_PROVIDER", "EMBEDDING_MODEL", "EMBEDDING_API_KEY",
+              "ENABLE_BACKEND_ACCESS_CONTROL")
     for k, v in defaults.items():
-        if k in ("LLM_MODEL", "EMBEDDING_MODEL", "LLM_API_KEY", "EMBEDDING_API_KEY") or k not in os.environ:
+        if k in forced or k not in os.environ:
             os.environ[k] = v
+    # Cognee re-loads the project .env with override=True at import, which would undo the
+    # above. Point it at an empty file so the process env we just built is what it uses.
+    empty = ROOT / ".cognee_system" / "empty.env"
+    empty.parent.mkdir(parents=True, exist_ok=True)
+    empty.touch()
+    os.environ["COGNEE_ENV_FILE"] = str(empty)
 
 
 _cognee = None
@@ -161,6 +181,15 @@ def _run(coro):
     return out.get("v")
 
 
+def _flatten(results) -> list:
+    """With access control on, Cognee wraps hits per dataset: {"dataset_name", "search_result": [...]}."""
+    out = []
+    for r in results:
+        inner = r.get("search_result") if isinstance(r, dict) else getattr(r, "search_result", None)
+        out.extend(_flatten(inner) if isinstance(inner, list) else [r])
+    return out
+
+
 def _result_to_text(r) -> str:
     if isinstance(r, str):
         return r
@@ -192,22 +221,35 @@ def _cognee_read(dataset: str, query: str, k: int = 5) -> list[str]:
     if dataset in _dirty:
         _run(cognee.cognify(datasets=[name]))
         _dirty.discard(dataset)
-    results = _run(cognee.search(query_text=query, query_type=SearchType.CHUNKS, datasets=[name], top_k=k))
-    return [t for t in (_result_to_text(r).strip() for r in results or []) if t][:k]
+    results = _run(cognee.search(query_text=query, query_type=SearchType.CHUNKS, datasets=[name], top_k=k * 3))
+    # Cognee's chunk search can return chunks from other datasets, so keep only hits that
+    # are records of this dataset. This is what guarantees e.g. social never sees customers.
+    own = {_norm(t): t for t in _sqlite_texts(dataset)}
+    hits = []
+    for chunk in _flatten(results or []):
+        text = own.get(_norm(_result_to_text(chunk)))
+        if text and text not in hits:
+            hits.append(text)
+    return hits[:k]
 
 
 # ---------- public API ----------
 
 def read(agent: str, dataset: str, query: str) -> list[str]:
     _check(agent, dataset, "read")
+    started = time.time()
     if _use_cognee():
         try:
             hits = _cognee_read(dataset, query)
             if hits:
+                print(f"[memory] {agent:<8} read {dataset:<9} via cognee  hits={len(hits)} latency={time.time() - started:.2f}s", flush=True)
                 return hits
+            print(f"[memory] {agent:<8} read {dataset:<9} cognee returned nothing, using sqlite", flush=True)
         except Exception as e:  # noqa: BLE001
-            print(f"[memory] cognee read failed, using sqlite: {e}")
-    return _sqlite_read(dataset, query)
+            print(f"[memory] {agent:<8} read {dataset:<9} cognee FAILED, using sqlite: {str(e)[:200]}", flush=True)
+    hits = _sqlite_read(dataset, query)
+    print(f"[memory] {agent:<8} read {dataset:<9} via sqlite  hits={len(hits)}", flush=True)
+    return hits
 
 
 def write(agent: str, dataset: str, record: dict) -> None:
@@ -217,7 +259,7 @@ def write(agent: str, dataset: str, record: dict) -> None:
         try:
             _cognee_write(dataset, _to_text(record))
         except Exception as e:  # noqa: BLE001
-            print(f"[memory] cognee write failed (kept in sqlite): {e}")
+            print(f"[memory] {agent:<8} write {dataset} cognee FAILED (kept in sqlite): {str(e)[:200]}", flush=True)
 
 
 def record_outcome(action: str, segment: str, result: str) -> None:
