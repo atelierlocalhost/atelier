@@ -20,8 +20,8 @@ const TABS = [
   { id: 'actions', label: 'Actions', icon: 'actions' },
   { id: 'social', label: 'Social and email', icon: 'social' },
   { id: 'lab', label: 'Shopper lab', icon: 'lab' },
-  { id: 'assistant', label: 'Assistant and reports', icon: 'chat' },
   { id: 'compare', label: 'Compare runs', icon: 'compare' },
+  { id: 'assistant', label: 'Assistant and reports', icon: 'chat' },
   { id: 'connect', label: 'Connections', icon: 'emails' },
 ]
 
