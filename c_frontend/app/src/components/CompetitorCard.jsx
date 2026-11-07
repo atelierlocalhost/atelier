@@ -18,9 +18,13 @@ export default function CompetitorCard({ c }) {
     <div className="card competitor">
       <div className="comp-head">
         <strong>{c.name}</strong>
-        <span className={gap < 0 ? 'pill alt' : 'pill ok'}>
-          {gap < 0 ? `${Math.abs(gap)}% cheaper` : gap > 0 ? `${gap}% pricier` : 'same price'}
-        </span>
+        {gap == null ? (
+          <span className="pill">Price gap not measured</span>
+        ) : (
+          <span className={gap < 0 ? 'pill alt' : 'pill ok'}>
+            {gap < 0 ? `${Math.abs(gap)}% cheaper` : gap > 0 ? `${gap}% pricier` : 'same price'}
+          </span>
+        )}
       </div>
       {href ? (
         <a href={href} target="_blank" rel="noopener noreferrer">{c.url}</a>

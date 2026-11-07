@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { getCosts, storeUrl } from '../api'
+import { getCosts, storeUrl, USE_MOCK } from '../api'
+import { DEMO_CLIENT } from '../demoClient'
 import { ChartCard, HBar } from '../components/Charts'
 import { segMark } from '../design/palette'
 
@@ -36,7 +37,7 @@ export default function Store({ run }) {
     <>
       <div className="card hero">
         <div>
-          <h2>Your store at a glance</h2>
+          <h2>{USE_MOCK ? DEMO_CLIENT.name : 'Your store'} at a glance</h2>
           <p>{customers} customers, {money(revenue)} in lifetime revenue, {pending} actions waiting for you.</p>
         </div>
       </div>
@@ -74,10 +75,13 @@ export default function Store({ run }) {
         )}
       </section>
       <h2>Storefront</h2>
-      {url ? (
-        <iframe className="store-frame" src={url} title="Storefront" />
-      ) : (
-        <p className="muted">Storefront preview needs the live API. Set VITE_USE_MOCK=false.</p>
+      {url && (
+        <>
+          <iframe className="store-frame" src={url} title="Storefront" referrerPolicy="no-referrer" />
+          <p className="muted">
+            Blank? Some sites block previews. <a href={url} target="_blank" rel="noopener noreferrer">Open the store in a new tab</a>.
+          </p>
+        </>
       )}
     </>
   )

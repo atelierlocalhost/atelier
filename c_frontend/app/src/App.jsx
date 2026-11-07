@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getLatestRun, getRun, startRun, USE_MOCK } from './api'
+import { DEMO_CLIENT } from './demoClient'
 import { getSession, signIn, signOut } from './auth'
 import Store from './tabs/Store'
 import Insights from './tabs/Insights'
@@ -81,7 +82,6 @@ export default function App() {
           ))}
         </nav>
         <div className="side-foot">
-          {run && <span className="pill top-pill">{run.run_id}{USE_MOCK && ' · mock data'}</span>}
           <button className="btn primary" onClick={runAgain} disabled={busy}>
             {busy ? 'Running (up to 90s)...' : 'Run again'}
           </button>
@@ -90,7 +90,7 @@ export default function App() {
       </aside>
       <div className="content">
         <header className="page-head">
-          <p className="caption">{session.email}</p>
+          <p className="caption">{USE_MOCK ? DEMO_CLIENT.name : session.email}</p>
           <h1>{tab === 'store' ? 'Welcome back' : current.label}</h1>
         </header>
         {error && <p className="error">{error}</p>}

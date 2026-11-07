@@ -1,5 +1,6 @@
 import mock1 from '@shared/mock_run.json'
 import mock2 from '@shared/mock_run_2.json'
+import { applyClient, DEMO_CLIENT } from './demoClient'
 
 export const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false'
 export const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8080'
@@ -8,7 +9,7 @@ export const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8080'
 const RUN_TIMEOUT_MS = 180_000
 
 const delay = (ms) => new Promise((r) => setTimeout(r, ms))
-const mockRuns = [structuredClone(mock1)]
+const mockRuns = [applyClient(mock1)]
 
 async function http(path, opts = {}, timeoutMs = 30_000) {
   const res = await fetch(BASE_URL + path, { ...opts, signal: AbortSignal.timeout(timeoutMs) })
@@ -45,7 +46,7 @@ export async function getRun(id) {
 export async function startRun(label) {
   if (USE_MOCK) {
     await delay(800)
-    if (mockRuns.length < 2) mockRuns.push(structuredClone(mock2))
+    if (mockRuns.length < 2) mockRuns.push(applyClient(mock2))
     return mockRuns[mockRuns.length - 1]
   }
   return http(
@@ -97,4 +98,4 @@ export async function getCosts(runId) {
   return http(`/api/costs${runId ? `?run_id=${encodeURIComponent(runId)}` : ''}`)
 }
 
-export const storeUrl = () => (USE_MOCK ? null : `${BASE_URL}/api/store`)
+export const storeUrl = () => (USE_MOCK ? DEMO_CLIENT.url : `${BASE_URL}/api/store`)
