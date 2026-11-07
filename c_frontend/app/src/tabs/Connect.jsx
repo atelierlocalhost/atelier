@@ -1,5 +1,7 @@
-import { useState } from 'react'
-import { USE_MOCK, BASE_URL } from '../api'
+import { useEffect, useState } from 'react'
+import { USE_MOCK, BASE_URL, getCosts } from '../api'
+import { ChartCard, HBar } from '../components/Charts'
+import DrillDonut from '../components/DrillDonut'
 import { getConnections, setConnection } from '../auth'
 
 // Secrets never go in the browser. These keys live in the enclave's secret store.
@@ -10,8 +12,15 @@ const SERVICES = [
   { id: 'sie', name: 'SIE', tint: 'mint', role: 'Tagging, extraction and embeddings', secret: 'SIE_API_KEY' },
 ]
 
-export default function Connect({ email }) {
+const COLORS = ['var(--seg-champions)', 'var(--seg-loyal)', 'var(--seg-new)']
+
+export default function Connect({ email, run }) {
   const [conn, setConn] = useState(getConnections)
+  const [costs, setCosts] = useState(null)
+  useEffect(() => {
+    getCosts(run?.run_id).then(setCosts).catch(() => setCosts(null))
+  }, [run])
+  const usd = (n) => `$${n.toFixed(3)}`
 
   function toggle(id) {
     setConn(setConnection(id, !conn[id]))
@@ -39,6 +48,38 @@ export default function Connect({ email }) {
           </div>
         ))}
       </section>
+      {costs && (
+        <>
+          <h2>Usage and cost</h2>
+          <section className="cols">
+            <ChartCard
+              title="Cost per run"
+              subtitle={`${Math.round(costs.savings_pct)}% cheaper than a frontier model`}
+              data={[{ name: 'Atelier', value: costs.total_usd }, { name: 'Frontier model', value: costs.frontier_equiv_usd }]}
+              format={usd}
+            >
+              <HBar
+                data={[
+                  { name: 'Atelier', value: costs.total_usd, color: 'var(--seg-champions)' },
+                  { name: 'Frontier model', value: costs.frontier_equiv_usd, color: 'var(--seg-loyal)' },
+                ]}
+                format={usd}
+              />
+            </ChartCard>
+            <DrillDonut
+              title="Where the spend goes"
+              subtitle="Cost per run by provider"
+              centerLabel="per run"
+              format={usd}
+              data={costs.providers.map((p, i) => ({ name: p.provider, value: p.usd, color: COLORS[i % 3] }))}
+              renderDetail={(name) => {
+                const p = costs.providers.find((x) => x.provider === name)
+                return <p>{p.calls} calls · {p.tokens.toLocaleString()} tokens · {usd(p.usd)}{p.model ? ` · ${p.model}` : ''}</p>
+              }}
+            />
+          </section>
+        </>
+      )}
       {!USE_MOCK && (
         <p className="muted">
           Connections are managed on the server for now. A connect and status endpoint is needed in the API contract

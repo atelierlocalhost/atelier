@@ -103,7 +103,7 @@ export default function App() {
           {run && tab === 'social' && <Social run={run} onChange={load} />}
           {tab === 'assistant' && <Assistant run={run} />}
           {tab === 'compare' && <Compare runs={runs} />}
-          {tab === 'connect' && <Connect email={session.email} />}
+          {tab === 'connect' && <Connect email={session.email} run={run} />}
           {!run && !error && needsRun && <p className="muted">No runs yet. Click Run again to start one.</p>}
         </main>
       </div>

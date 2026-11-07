@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { getCosts, storeUrl, USE_MOCK } from '../api'
+import { storeUrl, USE_MOCK } from '../api'
 import { DEMO_CLIENT } from '../demoClient'
 import { ChartCard, HBar } from '../components/Charts'
 import { segMark } from '../design/palette'
@@ -20,11 +19,6 @@ function Tile({ tint, label, value, sub }) {
 
 export default function Store({ run }) {
   const url = storeUrl()
-  const [costs, setCosts] = useState(null)
-  useEffect(() => {
-    if (run) getCosts(run.run_id).then(setCosts).catch(() => setCosts(null))
-  }, [run])
-
   if (!run) return <p className="muted">No stats yet. Click Run again to analyze your store.</p>
 
   const segs = run.insights.segments
@@ -53,28 +47,6 @@ export default function Store({ run }) {
         <ChartCard title="Revenue by segment" subtitle="Lifetime, USD" data={revData} format={money}>
           <HBar data={revData} format={money} />
         </ChartCard>
-        {costs && (
-          <ChartCard
-            title="Cost per run"
-            subtitle={`${Math.round(costs.savings_pct)}% cheaper than a frontier model`}
-            data={[
-              { name: 'Atelier', value: costs.total_usd },
-              { name: 'Frontier model', value: costs.frontier_equiv_usd },
-            ]}
-            format={(n) => `$${n.toFixed(3)}`}
-          >
-            <HBar
-              data={[
-                { name: 'Atelier', value: costs.total_usd, color: 'var(--seg-champions)' },
-                { name: 'Frontier model', value: costs.frontier_equiv_usd, color: 'var(--seg-loyal)' },
-              ]}
-              format={(n) => `$${n.toFixed(3)}`}
-            />
-            <p className="muted" style={{ marginTop: 'var(--space-3)' }}>
-              {costs.providers.map((p) => `${p.provider} $${p.usd.toFixed(3)}`).join(' · ')}
-            </p>
-          </ChartCard>
-        )}
       </section>
       <section className="cols">
         <DrillDonut
@@ -90,19 +62,6 @@ export default function Store({ run }) {
             <ul>{run.actions.filter((a) => a.status === st).map((a) => <li key={a.id}>{a.title} <span className="pill">{a.segment}</span></li>)}</ul>
           )}
         />
-        {costs && (
-          <DrillDonut
-            title="Where the spend goes"
-            subtitle="Cost per run by provider"
-            centerLabel="per run"
-            format={(n) => `$${n.toFixed(3)}`}
-            data={costs.providers.map((p, i) => ({ name: p.provider, value: p.usd, color: ['var(--seg-champions)', 'var(--seg-loyal)', 'var(--seg-new)'][i % 3] }))}
-            renderDetail={(name) => {
-              const p = costs.providers.find((x) => x.provider === name)
-              return <p>{p.calls} calls · {p.tokens.toLocaleString()} tokens · ${p.usd.toFixed(3)}{p.model ? ` · ${p.model}` : ''}</p>
-            }}
-          />
-        )}
       </section>
       <h2>Storefront</h2>
       {USE_MOCK ? (

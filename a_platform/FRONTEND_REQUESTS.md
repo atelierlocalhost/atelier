@@ -7,13 +7,13 @@ Flip to your API with `VITE_USE_MOCK=false` and `VITE_BASE_URL=http://localhost:
 ## What the interface does today
 | Tab | Uses | Status |
 |---|---|---|
-| Your store | `GET /api/run/latest`, `GET /api/costs`, iframe of `GET /api/store` | Works against the contract. Stats are derived from `insights.segments`. |
+| Your store | `GET /api/run/latest`, iframe of `GET /api/store` | Works against the contract. Stats are derived from `insights.segments`. |
 | Insights | run JSON | Interactive segment explorer (click a slice for actions and past results). |
 | Actions | `POST /api/actions/{id}/approve` | Board by status. Expects the updated Action back (`status: applied`, optional `result.message`). |
 | Social and email | run JSON | Email drafts, mailing list, past campaigns, image lab, carousels. See "Needs" below. |
 | Assistant and reports | `POST /api/chat` (missing) | Chat falls back to rule-based answers from the run. Reports (PDF/CSV/MD) are built in the browser. |
 | Compare runs | `GET /api/run/{id}` | Fetches the previous run by id (`r_002` then `r_001`). |
-| Connections | none | Local toggles in mock mode. Disabled against the live API. |
+| Connections | `GET /api/costs` | Local toggles in mock mode. Disabled against the live API. |
 
 Other behavior to know:
 - `POST /api/run` can take 30 to 90 s. The UI waits up to 180 s.
