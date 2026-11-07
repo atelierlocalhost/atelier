@@ -111,6 +111,7 @@ def _configure_cognee_env() -> None:
         "EMBEDDING_API_KEY": key,
         "EMBEDDING_DIMENSIONS": "768",
         "ENABLE_BACKEND_ACCESS_CONTROL": "False",  # our permission map is enforced here instead
+        "CACHING": "false",  # Cognee 1.x session memory; not needed, avoids an extra cache service
         "TELEMETRY_DISABLED": "1",
         "SYSTEM_ROOT_DIRECTORY": str(ROOT / ".cognee_system"),
         "DATA_ROOT_DIRECTORY": str(ROOT / ".cognee_data"),
