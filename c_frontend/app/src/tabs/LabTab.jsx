@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { startLabRun, postLabOutcome, USE_MOCK } from '../api'
 import mock1 from '../mock_lab.json'
+import RetryImg from '../components/RetryImg'
 
 const SEGMENTS = ['Champions', 'Loyal', 'New', 'At risk', 'Hibernating']
 const STEPS = [
@@ -43,7 +44,7 @@ function Leaderboard({ result }) {
         {result.variants.map((v) => (
           <div className="lb-row" key={v.variant_id}>
             <span className="lb-rank">{v.rank}</span>
-            <img src={v.image_url} alt={v.label} referrerPolicy="no-referrer" loading="lazy" />
+            <RetryImg src={v.image_url} alt={v.label} />
             <div className="lb-main">
               <strong>{v.label}</strong>
               <div className="lb-axis">
@@ -282,7 +283,7 @@ export default function LabTab() {
         <div className="variant-row">
           {variants.map((v) => (
             <div className="variant" key={v.variant_id}>
-              <img src={v.image_url} alt={v.label} referrerPolicy="no-referrer" loading="lazy" />
+              <RetryImg src={v.image_url} alt={v.label} />
               <strong>{v.label}</strong>
               <div className="chips">{v.features.map((f) => <span className="pill" key={f}>{f}</span>)}</div>
             </div>
