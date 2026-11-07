@@ -11,23 +11,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ store_name or "Atelier" }}</title>
 <style>
-  :root { --bg:#faf7f2; --ink:#2a2622; --muted:#7a7168; --line:#e8e1d6; --accent:#7c5e45; }
+  :root { --bg:#f7f9ec; --ink:#2b1838; --muted:#6f6479; --line:#dfe6c0; --accent:#3c204f; }
   * { box-sizing: border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font-family:Georgia,'Times New Roman',serif; }
-  header { padding:32px 16px 8px; text-align:center; }
+  header { padding:32px 16px 24px; text-align:center; background:#3c204f; color:#ebf2ca; border-radius:0 0 16px 16px; }
   header h1 { margin:0; font-size:2.2rem; letter-spacing:.04em; }
-  header p { color:var(--muted); margin:6px 0 0; }
+  header p { color:#ebf2ca; opacity:.75; margin:6px 0 0; }
   main { max-width:1000px; margin:0 auto; padding:16px; }
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; }
   .product { background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; }
-  .photo { aspect-ratio:4/5; background:#efe8dc center/cover no-repeat; }
+  .photo { aspect-ratio:4/5; background:#ebf2ca center/cover no-repeat; }
   .info { padding:12px 14px 14px; display:flex; flex-direction:column; gap:6px; flex:1; }
   .info h2 { font-size:1.05rem; margin:0; }
   .cat { color:var(--muted); font-size:.85rem; margin:0; }
   .tags { display:flex; flex-wrap:wrap; gap:4px; }
   .tag { font-size:.72rem; background:var(--line); border-radius:999px; padding:1px 8px; }
   .price { font-size:1.1rem; margin-top:auto; }
-  .buy { display:block; text-align:center; background:var(--accent); color:#fff; text-decoration:none; padding:10px; border-radius:8px; }
+  .buy { display:block; text-align:center; background:var(--accent); color:#ebf2ca; text-decoration:none; padding:10px; border-radius:8px; }
   .buy.off { background:var(--line); color:var(--muted); }
   .empty { text-align:center; color:var(--muted); padding:48px 0; }
   footer { text-align:center; color:var(--muted); font-size:.8rem; padding:24px; }

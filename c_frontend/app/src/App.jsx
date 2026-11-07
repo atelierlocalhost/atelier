@@ -52,16 +52,18 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="top">
-        <div>
-          <h1>Atelier</h1>
-          <p className="muted">AI operator for small boutiques{USE_MOCK && ' (mock data)'}</p>
-        </div>
-        <div className="top-right">
-          {run && <span className="pill">{run.run_id}</span>}
-          <button className="btn primary" onClick={runAgain} disabled={busy}>
-            {busy ? 'Running (up to 90s)...' : 'Run again'}
-          </button>
+      <header className="brandbar">
+        <div className="brandbar-in">
+          <div>
+            <img className="logo" src="/logo.png" alt="Atelier" />
+            <p className="muted">AI operator for small boutiques{USE_MOCK && ' (mock data)'}</p>
+          </div>
+          <div className="top-right">
+            {run && <span className="pill">{run.run_id}</span>}
+            <button className="btn primary" onClick={runAgain} disabled={busy}>
+              {busy ? 'Running (up to 90s)...' : 'Run again'}
+            </button>
+          </div>
         </div>
       </header>
       <nav className="tabs">
