@@ -1,1 +1,26 @@
-{"trends": [], "sounds": []}
+{
+  "trends": [
+    {"name": "Quiet luxury", "description": "Logo-free, high-quality basics in muted tones that signal taste over brand."},
+    {"name": "Washed linen everything", "description": "Relaxed linen sets and shirts worn rumpled, from beach to office."},
+    {"name": "Capsule wardrobe", "description": "Ten to fifteen pieces that mix endlessly; shoppers buy fewer, better items."},
+    {"name": "Butter yellow", "description": "Soft pale yellow as the season's breakout accent color."},
+    {"name": "Vintage-inspired denim", "description": "Straight and barrel-leg cuts with worn-in washes and visible stitching."},
+    {"name": "Office siren", "description": "Sharp tailoring, slim glasses and pencil skirts with a playful edge."},
+    {"name": "Mob wife layering", "description": "Faux fur, gold jewelry and bold leopard print layered with confidence."},
+    {"name": "Repair and rewear", "description": "Visible mending, alterations and resale as a badge of sustainable style."},
+    {"name": "Shop small Saturday", "description": "Shoppers seek out independent boutiques and the people behind them."},
+    {"name": "Get ready with me", "description": "Short videos styling one outfit start to finish, narrated casually."}
+  ],
+  "sounds": [
+    {"name": "Golden Hour (slowed)", "description": "Dreamy slowed piano loop for soft-light outfit reveals."},
+    {"name": "Lo-fi morning coffee", "description": "Mellow beat for calm behind-the-scenes shop footage."},
+    {"name": "French cafe accordion", "description": "Light accordion waltz that suits linen and Parisian looks."},
+    {"name": "Runway strut beat", "description": "Punchy four-on-the-floor for quick outfit-change transitions."},
+    {"name": "Acoustic sunrise", "description": "Warm fingerpicked guitar for new-arrival unboxings."},
+    {"name": "Vintage soul sample", "description": "Crackly 70s soul hook for denim and thrift-inspired edits."},
+    {"name": "Minimal tick-tock", "description": "Clock-tick percussion for countdowns and limited drops."},
+    {"name": "Disco revival", "description": "Bright bassline for party looks and bold prints."},
+    {"name": "Rainy day jazz", "description": "Soft brushed-drum jazz for cozy layering content."},
+    {"name": "Upbeat indie pop", "description": "Cheerful hook for shop-small and meet-the-maker stories."}
+  ]
+}
