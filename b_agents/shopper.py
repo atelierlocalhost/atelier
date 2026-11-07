@@ -53,7 +53,8 @@ def shuffled(persona: dict, variants: list[dict], seed: str = "") -> list[tuple[
     return [(LABELS[i], i + 1, v) for i, v in enumerate(order)]
 
 
-def build_prompt(persona: dict, shown: list[tuple[str, int, dict]], lessons: list[str]) -> str:
+def build_prompt(persona: dict, shown: list[tuple[str, int, dict]], lessons: list[str],
+                 history: list[str] | None = None) -> str:
     parts = []
     if lessons:
         parts.append("Lessons from this store so far:\n" + "\n".join(f"- {x}" for x in lessons))
@@ -61,6 +62,8 @@ def build_prompt(persona: dict, shown: list[tuple[str, int, dict]], lessons: lis
         "You are {name}, in your {age_band}, a {segment} customer of a small clothing boutique. "
         "Style: {style}. Budget for one item: about ${budget_usd}. Price sensitivity: {price_sensitivity}. "
         "You usually discover clothes via {channel}.".format(**persona))
+    if history:
+        parts.append("Your earlier reactions in this store's photo tests:\n" + "\n".join(f"- {h}" for h in history))
     parts.append(INSTRUCTIONS)
     for label, _, v in shown:
         parts.append(f"Option {label}:\n  Photo: {', '.join(v['features'])}\n  Caption: \"{v['caption']}\"\n"
@@ -82,6 +85,9 @@ def validate_reactions(out, shown: list[tuple[str, int, dict]]) -> dict[str, dic
     by_label = {}
     for r in items:
         label = str(r.get("option", r.get("shown_as", ""))).strip().upper().removeprefix("OPTION ").strip()
+        missing = [f for f in (*RATE_FIELDS, "purchase_intent", "wtp_usd") if r.get(f) is None]
+        if missing:
+            raise ValueError(f"option {label or '?'} is missing {', '.join(missing)}")
         intent = round(float(r["purchase_intent"]))
         if not 1 <= intent <= 7:
             raise ValueError(f"purchase_intent out of range: {intent}")
@@ -118,9 +124,10 @@ def fallback_reactions(persona: dict, shown: list[tuple[str, int, dict]]) -> dic
     return out
 
 
-async def react(persona: dict, variants: list[dict], lessons: list[str], seed: str = "") -> list[dict]:
+async def react(persona: dict, variants: list[dict], lessons: list[str], seed: str = "",
+                history: list[str] | None = None) -> list[dict]:
     shown = shuffled(persona, variants, seed)
-    prompt = build_prompt(persona, shown, lessons)
+    prompt = build_prompt(persona, shown, lessons, history)
     label = f"shopper {persona['id']}"
 
     def call():
@@ -136,13 +143,17 @@ async def react(persona: dict, variants: list[dict], lessons: list[str], seed: s
     } for shown_as, position, v in shown), key=lambda r: r["variant_id"])
 
 
-async def run_panel(personas: list[dict], variants: list[dict], lessons: list[str], seed: str = "") -> list[dict]:
-    """All personas in parallel (at most CONCURRENCY Tinfoil calls in flight). Flat list of reactions."""
+async def run_panel(personas: list[dict], variants: list[dict], lessons: list[str], seed: str = "",
+                    history: dict[str, list[str]] | None = None) -> list[dict]:
+    """All personas in parallel (at most CONCURRENCY Tinfoil calls in flight). Flat list of reactions.
+
+    `history` maps persona id -> that persona's earlier reactions (from the SQLite mirror).
+    """
     sem = asyncio.Semaphore(CONCURRENCY)
 
     async def one(p):
         async with sem:
-            return await react(p, variants, lessons, seed)
+            return await react(p, variants, lessons, seed, (history or {}).get(p["id"]))
 
     started = time.time()
     results = await asyncio.gather(*(one(p) for p in personas))

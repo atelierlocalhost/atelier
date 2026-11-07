@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import sys
 import threading
 import time
 
@@ -70,8 +71,10 @@ def _direct_tinfoil(messages: list[dict], json_mode: bool = False, reasoning_eff
 
 
 def log_call(agent: str, path: str, model: str, started: float, note: str = "") -> None:
-    print(f"[agent] {agent:<11} path={path:<9} model={model:<14} latency={time.time() - started:6.2f}s"
-          + (f"  {note}" if note else ""), flush=True)
+    # one write per line so concurrent shopper threads don't interleave
+    sys.stdout.write(f"[agent] {agent:<11} path={path:<9} model={model:<14} latency={time.time() - started:6.2f}s"
+                     + (f"  {note}" if note else "") + "\n")
+    sys.stdout.flush()
 
 
 def chat(task: str, messages: list[dict], json_mode: bool = False, reasoning_effort: str | None = None,

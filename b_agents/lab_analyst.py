@@ -5,8 +5,12 @@ run(ctx) needs:
     variants  (variant_id, label, image_url, features, optional style),
     personas  (persona_gen output), reactions (shopper.run_panel output),
     lessons_used (list[str], what the shoppers were shown)
-optional: calibration ({"mean_abs_error_pct", "n_observed"}), tokens (for costs;
-defaults to llm_util.usage(), so reset_usage() at the start of a lab run).
+optional: calibration (defaults to memory.calibration_summary()), tokens (for costs;
+defaults to llm_util.usage(), so reset_usage() at the start of a lab run),
+remember (default True).
+
+Memory (one Cognee batch): lessons_learned -> lab_outcomes, each variant's prediction
+-> calibration (for memory.record_observed), each persona's reactions -> persona:<id>.
 
 All numbers are computed in pandas/numpy:
     score = 0.2*stop_scroll + 0.3*click + 0.5*add_to_cart, per variant and per segment;
@@ -24,7 +28,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from b_agents import llm_util
+from b_agents import llm_util, memory
 from shared.contracts import SEGMENT_NAMES
 
 PROMPT = (Path(__file__).parent / "prompts" / "lab_analyst.txt").read_text()
@@ -199,18 +203,41 @@ def costs(tokens: int) -> dict:
             "frontier_equiv_usd": round(tokens / 1e6 * USD_PER_M["frontier"], 4)}
 
 
+def remember(result: dict, df: pd.DataFrame, ctx: dict, styles: dict[int, str]) -> None:
+    run_id = result["lab_run_id"]
+    labels = {v["variant_id"]: v["label"] for v in result["variants"]}
+    items = [("lab_outcomes", {"text": lesson, "type": "lesson", "lab_run_id": run_id})
+             for lesson in result["lessons_learned"]]
+    items += [("calibration", {"type": "prediction", "lab_run_id": run_id, "variant_id": v["variant_id"],
+                               "label": v["label"], "style": styles[v["variant_id"]], "score": v["score"],
+                               "by_segment": v["by_segment"],
+                               "text": f"{run_id} predicted {v['label']} at {v['score']:.3f}"})
+              for v in result["variants"]]
+    for pid, g in df.groupby("persona_id"):
+        best, worst = g.loc[g["score"].idxmax()], g.loc[g["score"].idxmin()]
+        items.append((f"persona:{pid}", {"lab_run_id": run_id, "text": (
+            f"{run_id}: liked {labels[best['variant_id']]} most ({best['add_to_cart']:.0%} add to cart, "
+            f"intent {best['purchase_intent']}/7), {labels[worst['variant_id']]} least. "
+            f"Objection: {best['objection']}")}))
+    memory.write_many("lab_analyst", items)
+
+
 def run(ctx: dict) -> dict:
     styles = {v["variant_id"]: v.get("style") or v["label"].lower() for v in ctx["variants"]}
     num = compute(ctx)
-    text, source = explain(num, ctx, styles)
+    calibration = ctx.get("calibration") or memory.calibration_summary()
+    text, source = explain(num, {**ctx, "calibration": calibration}, styles)
     tokens = ctx["tokens"] if "tokens" in ctx else llm_util.usage()["tokens"]
-    return {
+    result = {
         "lab_run_id": ctx["lab_run_id"], "variant_set_id": ctx["variant_set_id"], "product": _name(ctx["product"]),
         "winner": num["winner"], "variants": num["variants"],
         "reasons": num["reasons"], "objections": num["objections"], "comments": num["comments"],
         "lessons_used": list(ctx.get("lessons_used", [])), "lessons_learned": text["lessons_learned"],
-        "calibration": ctx.get("calibration") or {"mean_abs_error_pct": 0.0, "n_observed": 0},
+        "calibration": calibration,
         "working": text["working"], "fix": text["fix"], "costs": costs(tokens),
         "analyst_source": source, "analyst_n_personas": int(num["df"]["persona_id"].nunique()),
         "analyst_n_reactions": int(len(num["df"])), "analyst_tokens": int(tokens),
     }
+    if ctx.get("remember", True):
+        remember(result, num["df"], ctx, styles)
+    return result
