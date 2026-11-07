@@ -1,4 +1,9 @@
 # c_frontend (Person C)
 
-React dashboard (reads `/api/run/latest`, approves actions), storefront and social card templates, pitch deck.
-Develop against `shared/mock_run.json` and `shared/mock_run_2.json` until the API is up.
+React dashboard in `app/`, templates in `templates/`, pitch in `pitch/`, design rules in `DESIGN.md`.
+
+```bash
+cd app && npm install && npm run dev      # mock data by default
+```
+Set `VITE_USE_MOCK=false` and `VITE_BASE_URL` in `app/.env` to use the real API.
+Open `/#design` for the live style guide. See `../a_platform/FRONTEND_REQUESTS.md` for what the UI needs from the backend.

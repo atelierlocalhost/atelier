@@ -63,3 +63,12 @@ export function applyClient(run) {
   r.social = SOCIAL
   return r
 }
+
+// Collections and promo read from the public homepage. No products or prices are invented.
+export const DEMO_STORE = {
+  tagline: 'Contemporary British Womenswear',
+  promo: 'Sign up to get 10% off your first order',
+  collections: ['Outerwear', 'Knitwear', 'Co-ords', 'Dresses', 'Blazers', 'Trousers', 'Tops & Bodysuits', 'Skirts'],
+  edits: ['Tailoring', 'Leather', 'Eveningwear'],
+  occasions: ['Partywear', 'Bridal', 'Vacation', 'Wedding Guest'],
+}

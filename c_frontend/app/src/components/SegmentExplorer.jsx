@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { ChartCard, HBar, Donut } from './Charts'
+import { HBar, Donut } from './Charts'
 import { segMark } from '../design/palette'
-import { parseMemory } from '../tabs/MailingList'
+import { parseMemory } from '../lib/memory'
 
 const METRICS = {
   customers: { label: 'Customers', get: (s) => s.count, fmt: (n) => n.toLocaleString(), donut: true },

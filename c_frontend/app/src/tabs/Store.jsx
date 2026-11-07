@@ -4,6 +4,7 @@ import { DEMO_CLIENT } from '../demoClient'
 import { ChartCard, HBar } from '../components/Charts'
 import { segMark } from '../design/palette'
 import DrillDonut from '../components/DrillDonut'
+import StorefrontPreview from '../components/StorefrontPreview'
 
 const money = (n) => `$${Math.round(n).toLocaleString()}`
 
@@ -104,13 +105,10 @@ export default function Store({ run }) {
         )}
       </section>
       <h2>Storefront</h2>
-      {url && (
-        <>
-          <iframe className="store-frame" src={url} title="Storefront" referrerPolicy="no-referrer" />
-          <p className="muted">
-            Blank? Some sites block previews. <a href={url} target="_blank" rel="noopener noreferrer">Open the store in a new tab</a>.
-          </p>
-        </>
+      {USE_MOCK ? (
+        <StorefrontPreview />
+      ) : (
+        <iframe className="store-frame" src={url} title="Storefront" />
       )}
     </>
   )

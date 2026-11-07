@@ -5,6 +5,7 @@ const P = {
   emails: 'M3 6h18v12H3zM3 7l9 7 9-7',
   social: 'M12 21s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z',
   compare: 'M7 4v16M17 4v16M3 8l4-4 4 4M13 16l4 4 4-4',
+  chat: 'M21 12a8 8 0 01-11.5 7.2L4 20l1-4.5A8 8 0 1121 12z',
   arrow: 'M7 17L17 7M8 7h9v9',
 }
 export default function Icon({ name, size = 20 }) {
