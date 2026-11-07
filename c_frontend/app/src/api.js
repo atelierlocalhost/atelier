@@ -1,5 +1,7 @@
 import mock1 from '@shared/mock_run.json'
 import mock2 from '@shared/mock_run_2.json'
+import lab1 from './mock_lab.json'
+import lab2 from './mock_lab_2.json'
 import { applyClient, DEMO_CLIENT } from './demoClient'
 
 export const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false'
@@ -87,8 +89,8 @@ export async function getCosts(runId) {
       run_id: run.run_id,
       providers: [
         { provider: 'sie', calls: 0, tokens: 0, usd: c.sie_usd },
-        { provider: 'tinfoil', model: 'gpt-oss-120b', calls: 0, tokens: 0, usd: c.tinfoil_usd },
-        { provider: 'darkbloom', calls: 0, tokens: 0, usd: c.darkbloom_usd },
+        // Darkbloom is retired: its cost is folded into Tinfoil.
+        { provider: 'tinfoil', model: 'gpt-oss-120b', calls: 0, tokens: 0, usd: c.tinfoil_usd + c.darkbloom_usd },
       ],
       total_usd: total,
       frontier_equiv_usd: c.frontier_equiv_usd,
@@ -99,3 +101,45 @@ export async function getCosts(runId) {
 }
 
 export const storeUrl = () => (USE_MOCK ? DEMO_CLIENT.url : `${BASE_URL}/api/store`)
+
+// ---- Shopper Lab (synthetic shopper panel). Shapes follow the LabResult contract in the plan. ----
+const mockLabs = []
+const mockOutcomes = []
+
+// Real call can take 30 to 90 s. n_per_segment defaults to 4 (20 personas).
+export async function startLabRun(variantSetId = 'vs_01', label) {
+  if (USE_MOCK) {
+    await delay(5200) // lets the UI show the six steps
+    const next = structuredClone(mockLabs.length === 0 ? lab1 : lab2)
+    mockLabs.push(next)
+    return next
+  }
+  return http(
+    '/api/lab/run',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ variant_set_id: variantSetId, ...(label ? { label } : {}) }),
+    },
+    RUN_TIMEOUT_MS,
+  )
+}
+
+export async function getLabRun(id) {
+  if (USE_MOCK) return mockLabs.find((r) => r.lab_run_id === id) || null
+  return http(`/api/lab/run/${id}`)
+}
+
+// Real results flow back so the lab can calibrate its predictions.
+export async function postLabOutcome({ variant_id, observed, source = 'manual' }) {
+  if (USE_MOCK) {
+    await delay(300)
+    mockOutcomes.push({ variant_id, observed, source })
+    return { variant_id, observed, source }
+  }
+  return http('/api/lab/outcomes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ variant_id, observed, source }),
+  })
+}

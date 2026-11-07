@@ -1,0 +1,180 @@
+{
+ "lab_run_id": "l_001",
+ "variant_set_id": "vs_01",
+ "product": "Tailored corset gown with draped hip",
+ "winner": {
+  "variant_id": 2,
+  "label": "On model, full length",
+  "lift_pct": 3.8,
+  "call": "too_close"
+ },
+ "variants": [
+  {
+   "variant_id": 2,
+   "label": "On model, full length",
+   "image_url": "https://cdn.shopify.com/s/files/1/0288/8620/4498/files/Look_4_ecom_55605420-03ea-41ff-b61a-129db76037cb.jpg?v=1790866657",
+   "features": [
+    "studio background",
+    "model",
+    "full length"
+   ],
+   "score": 0.55,
+   "ci": [
+    0.49,
+    0.61
+   ],
+   "rank": 1,
+   "by_segment": {
+    "Champions": 0.6,
+    "Loyal": 0.58,
+    "New": 0.55,
+    "At risk": 0.51,
+    "Hibernating": 0.5
+   }
+  },
+  {
+   "variant_id": 3,
+   "label": "On model, 3/4 portrait",
+   "image_url": "https://cdn.shopify.com/s/files/1/0288/8620/4498/files/Look4ecom6.jpg?v=1790866658",
+   "features": [
+    "studio background",
+    "model",
+    "close crop",
+    "eye contact"
+   ],
+   "score": 0.53,
+   "ci": [
+    0.47,
+    0.59
+   ],
+   "rank": 2,
+   "by_segment": {
+    "Champions": 0.57,
+    "Loyal": 0.55,
+    "New": 0.53,
+    "At risk": 0.5,
+    "Hibernating": 0.49
+   }
+  },
+  {
+   "variant_id": 4,
+   "label": "Detail close-up",
+   "image_url": "https://cdn.shopify.com/s/files/1/0288/8620/4498/files/Look4ecom3.jpg?v=1790866658",
+   "features": [
+    "studio background",
+    "model",
+    "detail crop"
+   ],
+   "score": 0.47,
+   "ci": [
+    0.41,
+    0.53
+   ],
+   "rank": 3,
+   "by_segment": {
+    "Champions": 0.5,
+    "Loyal": 0.49,
+    "New": 0.47,
+    "At risk": 0.42,
+    "Hibernating": 0.45
+   }
+  },
+  {
+   "variant_id": 1,
+   "label": "Product only, white background",
+   "image_url": "https://cdn.shopify.com/s/files/1/0288/8620/4498/files/STONETAILOREDCORSETGOWNWITHDRAPEDHIP.jpg?v=1791799355",
+   "features": [
+    "white background",
+    "no model",
+    "product only"
+   ],
+   "score": 0.41,
+   "ci": [
+    0.35,
+    0.47
+   ],
+   "rank": 4,
+   "by_segment": {
+    "Champions": 0.46,
+    "Loyal": 0.44,
+    "New": 0.4,
+    "At risk": 0.33,
+    "Hibernating": 0.38
+   }
+  }
+ ],
+ "reasons": [
+  {
+   "variant_id": 2,
+   "text": "shows the full drape and length",
+   "share": 0.38
+  },
+  {
+   "variant_id": 3,
+   "text": "easy to picture wearing it to an event",
+   "share": 0.35
+  },
+  {
+   "variant_id": 4,
+   "text": "can see the fabric and the corset seaming",
+   "share": 0.3
+  }
+ ],
+ "objections": [
+  {
+   "variant_id": 1,
+   "text": "can't tell how it fits on a body",
+   "share": 0.45
+  },
+  {
+   "variant_id": 4,
+   "text": "too cropped to judge the length",
+   "share": 0.33
+  }
+ ],
+ "comments": [
+  {
+   "persona": "Maya, 30s, At risk",
+   "variant_id": 2,
+   "text": "I can see the whole dress, so I know if it is for me."
+  },
+  {
+   "persona": "Imani, 20s, New",
+   "variant_id": 3,
+   "text": "The close shot feels like a real person, not an ad."
+  },
+  {
+   "persona": "Claire, 40s, Champions",
+   "variant_id": 4,
+   "text": "I want to see the fabric before paying this much."
+  },
+  {
+   "persona": "Hannah, 50s, Hibernating",
+   "variant_id": 1,
+   "text": "Just a dress on white. I cannot picture myself in it."
+  }
+ ],
+ "lessons_used": [],
+ "lessons_learned": [
+  "Model-worn images beat product-only for every segment (+0.12 average)",
+  "Full length and close crop are too close to separate on 20 personas"
+ ],
+ "calibration": {
+  "mean_abs_error_pct": 0.0,
+  "n_observed": 0
+ },
+ "working": [
+  "On-model images score 0.12 higher than product-only",
+  "Champions respond best across all variants"
+ ],
+ "fix": [
+  "Product-only shots lose At risk shoppers (0.33)",
+  "Winner is too close to call: add a stronger variant or more personas"
+ ],
+ "costs": {
+  "sie_usd": 0.002,
+  "tinfoil_usd": 0.01,
+  "darkbloom_usd": 0.02,
+  "frontier_equiv_usd": 0.38
+ }
+}

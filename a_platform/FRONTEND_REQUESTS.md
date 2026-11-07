@@ -40,3 +40,9 @@ Other behavior to know:
 
 ## Competitor data the UI can already use (proposal)
 The demo reads each brand's public Shopify feed (`/products.json`) and shows a benchmark: median dress price, share of catalogue on sale, in-stock share, photos per product, variants per product. To do this live, the Competitor agent could return an optional `metrics` object per competitor (`sampled`, `dressMedian`, `onSalePct`, `inStockPct`, `avgImages`, `avgVariants`) and compute `price_gap_pct` from it. The demo logic is in `c_frontend/app/src/lib/competitors.js` and `demoData.js`. Instagram and TikTok are sign-in walled, so social posts cannot be read that way.
+
+## Shopper Lab (Person C part is built, simulated)
+The Shopper lab tab runs on `mock_lab.json` and `mock_lab_2.json` in `c_frontend/app/src/`, in the exact `LabResult` shape from the plan. It shows the variant grid, a six-step run progress, leaderboard with intervals, a variant x segment heatmap, reasons and objections, persona comments, run 1 vs run 2 (lessons used, rank changes, calibration) and a form to report real results. It calls `POST /api/lab/run` (waits up to 180 s), `GET /api/lab/run/{id}` and `POST /api/lab/outcomes` when `VITE_USE_MOCK=false`. Demo variants are four real product photos linked from the client's site, labeled by what they show.
+
+## Darkbloom is retired
+The UI no longer mentions Darkbloom. In mock mode its cost is folded into Tinfoil. Assumption: creative calls (social, competitor, shopper personas) now go to Tinfoil. The contract still has `costs.darkbloom_usd` and the `darkbloom` provider; those can be dropped or zeroed. The UI tolerates both, but the cost breakdown shows whatever providers `/api/costs` returns.

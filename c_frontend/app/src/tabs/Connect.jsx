@@ -8,7 +8,6 @@ import { getConnections, setConnection } from '../auth'
 const SERVICES = [
   { id: 'stripe', name: 'Stripe', tint: 'lavender', role: 'Payments: checkout links and coupons (test mode)', secret: 'STRIPE_SECRET_KEY' },
   { id: 'tinfoil', name: 'Tinfoil', tint: 'sky', role: 'Private inference for customer data', secret: 'TINFOIL_API_KEY' },
-  { id: 'darkbloom', name: 'Darkbloom', tint: 'pink', role: 'Social and competitor copy', secret: 'DARKBLOOM_API_KEY' },
   { id: 'sie', name: 'SIE', tint: 'mint', role: 'Tagging, extraction and embeddings', secret: 'SIE_API_KEY' },
 ]
 
@@ -17,9 +16,9 @@ const COLORS = ['var(--seg-champions)', 'var(--seg-loyal)', 'var(--seg-new)']
 // From the project plan: run order, which provider handles each agent, and Cognee memory permissions.
 const AGENTS = [
   { name: 'Insights', provider: 'Tinfoil (private)', memory: 'Reads and writes customers, outcomes' },
-  { name: 'Competitor', provider: 'Darkbloom + SIE', memory: 'Writes competitors only' },
+  { name: 'Competitor', provider: 'Tinfoil + SIE', memory: 'Writes competitors only' },
   { name: 'Strategy', provider: 'Tinfoil (private)', memory: 'Reads and writes customers, outcomes' },
-  { name: 'Social', provider: 'Darkbloom', memory: 'Reads brand and outcomes, never customers' },
+  { name: 'Social', provider: 'Tinfoil (private)', memory: 'Reads brand and outcomes, never customers' },
 ]
 
 export default function Connect({ email, run }) {

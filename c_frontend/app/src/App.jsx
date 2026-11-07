@@ -9,6 +9,7 @@ import Social from './tabs/Social'
 import Compare from './tabs/Compare'
 import Connect from './tabs/Connect'
 import Assistant from './tabs/Assistant'
+import LabTab from './tabs/LabTab'
 import SignIn from './tabs/SignIn'
 import Icon from './components/Icons'
 import StyleGuide from './design/StyleGuide'
@@ -18,6 +19,7 @@ const TABS = [
   { id: 'insights', label: 'Insights', icon: 'insights' },
   { id: 'actions', label: 'Actions', icon: 'actions' },
   { id: 'social', label: 'Social and email', icon: 'social' },
+  { id: 'lab', label: 'Shopper lab', icon: 'lab' },
   { id: 'assistant', label: 'Assistant and reports', icon: 'chat' },
   { id: 'compare', label: 'Compare runs', icon: 'compare' },
   { id: 'connect', label: 'Connections', icon: 'emails' },
@@ -101,6 +103,7 @@ export default function App() {
           {run && tab === 'insights' && <Insights run={run} />}
           {run && tab === 'actions' && <Actions run={run} onChange={load} />}
           {run && tab === 'social' && <Social run={run} onChange={load} />}
+          {tab === 'lab' && <LabTab />}
           {tab === 'assistant' && <Assistant run={run} />}
           {tab === 'compare' && <Compare runs={runs} />}
           {tab === 'connect' && <Connect email={session.email} run={run} />}
