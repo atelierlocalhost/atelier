@@ -1,0 +1,72 @@
+import { ChartCard, HBar } from '../components/Charts'
+import { segMark } from '../design/palette'
+
+// Real past results come from run.memory_used, e.g. "Win-back email to At risk: 12% redeemed".
+function parseMemory(items) {
+  return items
+    .map((m) => {
+      const x = m.match(/^(.*?) to (.*?): (\d+(?:\.\d+)?)% (.+)$/)
+      return x ? { name: x[1], segment: x[2], value: Number(x[3]), metric: x[4], source: 'memory' } : null
+    })
+    .filter(Boolean)
+}
+
+// SAMPLE history so the page is useful before the backend stores campaign results.
+const SAMPLE = [
+  { name: 'Free shipping weekend', segment: 'Loyal', value: 9, metric: 'redeemed' },
+  { name: 'Welcome series email', segment: 'New', value: 14, metric: 'opened and bought' },
+  { name: 'Seasonal 20% off', segment: 'Hibernating', value: 3, metric: 'redeemed' },
+  { name: 'VIP early access', segment: 'Champions', value: 18, metric: 'redeemed' },
+].map((s) => ({ ...s, source: 'sample' }))
+
+export default function MailingList({ run }) {
+  const segs = run.insights.segments
+  const total = segs.reduce((n, s) => n + s.count, 0)
+  const subs = segs.map((s) => ({ name: s.name, value: s.count, color: segMark(s.name) }))
+  const real = parseMemory(run.memory_used)
+  const past = [...real, ...SAMPLE].sort((a, b) => b.value - a.value)
+  const chart = past.map((p) => ({ name: p.name.slice(0, 22), value: p.value, color: segMark(p.segment) }))
+  const best = past[0]
+  const weak = past.filter((p) => p.value <= 3)
+
+  return (
+    <>
+      <h2>Mailing list</h2>
+      <section className="cols">
+        <ChartCard title="Subscribers by segment" subtitle={`${total} customers on your list`} data={subs}>
+          <HBar data={subs} />
+        </ChartCard>
+        <div className="card memory">
+          <h3>What has worked before</h3>
+          <ul>
+            <li>Best result: <strong>{best.name}</strong> to {best.segment}, {best.value}% {best.metric}.</li>
+            {weak.length > 0 && <li>Weak: {weak.map((w) => `${w.name} (${w.value}%)`).join(', ')}. Send fewer of these.</li>}
+            {real.length === 0 && <li>Atelier has no learned results yet. The next run will start from what you approve here.</li>}
+          </ul>
+        </div>
+      </section>
+
+      <ChartCard title="Past campaigns and promos" subtitle="Redemption or conversion rate" data={past.map((p) => ({ name: p.name, value: p.value }))} format={(n) => `${n}%`}>
+        <HBar data={chart} format={(n) => `${n}%`} />
+      </ChartCard>
+      <div className="card" style={{ marginTop: 'var(--space-3)' }}>
+        <table className="data-table history">
+          <thead>
+            <tr><th>Campaign</th><th>Segment</th><th>Result</th><th>Source</th></tr>
+          </thead>
+          <tbody>
+            {past.map((p) => (
+              <tr key={p.name + p.segment}>
+                <th>{p.name}</th>
+                <td>{p.segment}</td>
+                <td>{p.value}% {p.metric}</td>
+                <td><span className={p.source === 'memory' ? 'pill ok' : 'pill alt'}>{p.source === 'memory' ? 'From memory' : 'Sample data'}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="muted">"From memory" rows are real outcomes the Strategy agent recorded. Sample rows are placeholders until past campaigns are stored.</p>
+      </div>
+    </>
+  )
+}
