@@ -8,6 +8,9 @@ const P = {
   chat: 'M21 12a8 8 0 01-11.5 7.2L4 20l1-4.5A8 8 0 1121 12z',
   lab: 'M9 3h6M10 3v6L4.5 19a1.5 1.5 0 001.3 2.2h12.4a1.5 1.5 0 001.3-2.2L14 9V3M7 15h10',
   arrow: 'M7 17L17 7M8 7h9v9',
+  search: 'M11 4a7 7 0 100 14 7 7 0 000-14zM21 21l-4.35-4.35',
+  clients: 'M16 20v-1a4 4 0 00-4-4H7a4 4 0 00-4 4v1M9.5 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM21 20v-1a4 4 0 00-3-3.85M15.5 4.2a3.5 3.5 0 010 6.6',
+  report: 'M14 3H6v18h12V7zM14 3v4h4M9 13h6M9 17h6',
 }
 export default function Icon({ name, size = 20 }) {
   return (

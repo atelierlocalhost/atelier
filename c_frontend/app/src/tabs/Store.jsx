@@ -17,7 +17,7 @@ function Tile({ tint, label, value, sub }) {
   )
 }
 
-export default function Store({ run }) {
+export default function Store({ run, name, website }) {
   const url = storeUrl()
   if (!run) return <p className="muted">No stats yet. Click Run again to analyze your store.</p>
 
@@ -33,7 +33,7 @@ export default function Store({ run }) {
     <>
       <div className="card hero">
         <div>
-          <h2>{USE_MOCK ? DEMO_CLIENT.name : 'Your store'} at a glance</h2>
+          <h2>{name || (USE_MOCK ? DEMO_CLIENT.name : 'Your store')} at a glance</h2>
           <p>{customers} customers, {money(revenue)} in lifetime revenue, {pending} actions waiting for you.</p>
         </div>
       </div>
@@ -66,6 +66,11 @@ export default function Store({ run }) {
       <h2>Storefront</h2>
       {USE_MOCK ? (
         <StorefrontPreview />
+      ) : website ? (
+        <div className="card comp-head">
+          <p>Their live website. Most shops block being shown inside another page, so it opens in a new tab.</p>
+          <a className="btn" href={website} target="_blank" rel="noreferrer">Open {new URL(website).hostname.replace('www.', '')}</a>
+        </div>
       ) : (
         <iframe className="store-frame" src={url} title="Storefront" />
       )}

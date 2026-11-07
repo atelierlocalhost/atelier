@@ -227,3 +227,42 @@ code { font-size: var(--text-xs); background: rgba(255, 255, 255, 0.7); padding:
 .share-bar { height: 0.5rem; background: rgba(255, 255, 255, 0.6); border-radius: var(--radius-pill); margin: var(--space-1) 0; }
 .share-bar i { display: block; height: 100%; background: var(--purple-700); border-radius: var(--radius-pill); }
 select.tag-input { min-width: 12rem; }
+
+/* ---- Studio: Trend Drive, signed boutiques, weekly reports (built from the same tokens) ---- */
+.nav-group { margin: var(--space-3) 0 var(--space-1) var(--space-3); }
+.shop-card { font: inherit; color: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: var(--space-2); align-items: flex-start; }
+.shop-card h3, .shop-card p { margin: 0; }
+.shop-card:hover { box-shadow: 0 6px 18px rgba(60, 32, 79, 0.16); }
+.shop-card:focus-visible { outline: 2px solid var(--purple-500); outline-offset: 2px; }
+.plan-table td { text-align: left; font-weight: var(--weight-regular); }
+.plan-table thead th { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.lavender-card { background: color-mix(in srgb, var(--tint-lavender) 75%, transparent); }
+.sky-card { background: color-mix(in srgb, var(--tint-sky) 75%, transparent); }
+.mint-card { background: color-mix(in srgb, var(--tint-mint) 75%, transparent); }
+.peach-card { background: color-mix(in srgb, var(--tint-peach) 75%, transparent); }
+.pink-card { background: color-mix(in srgb, var(--tint-pink) 75%, transparent); }
+.butter-card { background: color-mix(in srgb, var(--tint-butter) 75%, transparent); }
+.prose { max-width: 65ch; }
+.concept-img { width: 100%; border-radius: var(--radius-sm); display: block; }
+.send-wrap { max-width: 44rem; display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-6); }
+.mail-meta { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--line); display: grid; gap: var(--space-1); }
+.mail-frame { width: 100%; height: 44rem; border: 0; display: block; background: #fff; overflow: hidden; }
+.send-row { display: flex; gap: var(--space-3); align-items: flex-end; flex-wrap: wrap; }
+.send-row .field { flex: 1 1 16rem; width: auto; }
+.client-card.active { outline: 2px solid var(--purple-500); }
+.client-stats { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-2) 0 var(--space-3); }
+.prose { margin: var(--space-4) 0; }
+.card + .caption, .cols + .caption, .image-grid + .caption, .prose + .caption { margin-top: var(--space-5); }
+.shop-head { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--space-3); flex-wrap: wrap; }
+.head-actions { display: flex; gap: var(--space-2); }
+.section-nav { position: sticky; top: 0; z-index: 2; padding: var(--space-2) 0; margin-bottom: var(--space-4); backdrop-filter: var(--glass-blur); }
+.section-nav .pill { text-decoration: none; color: var(--ink); border: 1px solid var(--glass-border); }
+.section-nav .pill:hover { background: var(--glass-strong); }
+.shop-section { scroll-margin-top: 4rem; padding-top: var(--space-4); margin-bottom: var(--space-5); border-top: 1px solid var(--line); }
+#sec-store { border-top: 0; padding-top: 0; }
+.fab { position: fixed; right: var(--space-5); bottom: var(--space-5); z-index: 10; padding: var(--space-3) var(--space-5); box-shadow: 0 8px 24px rgba(60, 32, 79, 0.28); }
+/* Long shop page: one solid primary (Run again). Section buttons use the soft primary so they don't compete. */
+.shop-section .btn.primary { background: var(--tint-lavender); color: var(--purple-700); border-color: var(--purple-500); }
+.shop-section .btn.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--tint-lavender) 60%, var(--purple-500) 15%); }
+.shop-section .hero .btn.primary { background: var(--cream-100); color: var(--purple-700); border-color: var(--cream-100); }
+.lab-in-plan { border-top: 0; padding-top: 0; margin-bottom: var(--space-6); }

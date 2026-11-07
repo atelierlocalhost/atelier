@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { startLabRun, postLabOutcome, USE_MOCK } from '../api'
+import { getLabVariants, startLabRun, postLabOutcome, USE_MOCK } from '../api'
 import mock1 from '../mock_lab.json'
 
 const SEGMENTS = ['Champions', 'Loyal', 'New', 'At risk', 'Hibernating']
@@ -232,12 +232,31 @@ function Outcomes({ variants }) {
   )
 }
 
-export default function LabTab() {
-  const [runs, setRuns] = useState([])
+const AUDIENCES = [
+  { id: 'women', label: 'Women' },
+  { id: 'men', label: 'Men' },
+  { id: 'kids', label: 'Kids' },
+]
+
+// One panel per shop and audience: each audience sees different photos from the shop's own website.
+export default function LabTab({ shopId, clientId }) {
+  const [audience, setAudience] = useState('women')
+  const [runsBy, setRunsBy] = useState({})
+  const [preview, setPreview] = useState(null)
   const [busy, setBusy] = useState(false)
   const [step, setStep] = useState(0)
   const [err, setErr] = useState('')
   const [view, setView] = useState('latest')
+  const runs = runsBy[audience] || []
+  const ctx = { shop_id: shopId, client_id: clientId, audience }
+
+  useEffect(() => {
+    let live = true
+    getLabVariants({ shop_id: shopId, client_id: clientId, audience })
+      .then((p) => live && setPreview(p))
+      .catch(() => live && setPreview(null))
+    return () => { live = false }
+  }, [shopId, clientId, audience])
 
   // Step animation while the (up to 90 s) request is in flight.
   useEffect(() => {
@@ -251,8 +270,8 @@ export default function LabTab() {
     setStep(0)
     setErr('')
     try {
-      const r = await startLabRun('vs_01')
-      setRuns((prev) => [...prev, r])
+      const r = await startLabRun('vs_01', undefined, ctx)
+      setRunsBy((prev) => ({ ...prev, [audience]: [...(prev[audience] || []), r] }))
       setView('latest')
     } catch (e) {
       setErr(e.message)
@@ -262,18 +281,27 @@ export default function LabTab() {
   }
 
   const latest = runs[runs.length - 1]
-  const variants = (latest || mock1).variants.slice().sort((a, b) => a.variant_id - b.variant_id)
+  const variants = (latest || preview || mock1).variants.slice().sort((a, b) => a.variant_id - b.variant_id)
+  const product = latest?.product || preview?.product || mock1.product
 
   return (
     <>
       <p className="muted">
-        A panel of 20 synthetic shoppers, built from your customer segments, reacts to four versions of the same product. {USE_MOCK && 'These are simulated results for the demo.'}
+        A panel of 20 synthetic shoppers reacts to four photos {preview && !preview.sample_photos ? "from this shop's website" : 'of the same product'}. Results are simulated.
       </p>
+      <div className="seg-toggle" role="tablist" aria-label="Shopper panel" style={{ marginBottom: 'var(--space-3)' }}>
+        {AUDIENCES.map((a) => (
+          <button key={a.id} role="tab" aria-selected={audience === a.id} className={audience === a.id ? 'btn small primary' : 'btn small'}
+            onClick={() => { setAudience(a.id); setView('latest') }} disabled={busy}>
+            {a.label}
+          </button>
+        ))}
+      </div>
       <div className="card">
         <div className="comp-head">
           <div>
-            <h3 style={{ margin: 0 }}>{mock1.product}</h3>
-            <p className="muted">Goal: conversion · 4 image variants · 20 personas</p>
+            <h3 style={{ margin: 0 }}>{product}</h3>
+            <p className="muted">Goal: conversion · 4 photos · 20 {audience === 'kids' ? 'parents and gift buyers' : `${audience}'s shoppers`}{preview?.sample_photos ? ' · sample photos (no photos found on their site)' : ''}</p>
           </div>
           <button className="btn primary" onClick={run} disabled={busy}>
             {busy ? 'Running...' : runs.length === 0 ? 'Run the lab' : 'Run again with lessons'}

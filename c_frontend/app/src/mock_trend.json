@@ -1,0 +1,232 @@
+{
+  "summary": {
+    "run_id": "tr_mock",
+    "stage": "AWAIT_APPROVAL",
+    "error": null,
+    "busy": false,
+    "searched": 199,
+    "reviewed": 84,
+    "underperforming": 2,
+    "waiting_review": 2
+  },
+  "shops": {
+    "latest": [
+      {
+        "id": "bq_mock1",
+        "name": "Willow Thread",
+        "address": "212 Bedford Ave, Brooklyn",
+        "website": "https://example.com/willow",
+        "domain": "willowthread.example",
+        "email": "hello@willowthread.example",
+        "phone": null,
+        "instagram": "@willowthread",
+        "status": "PLAN_READY",
+        "weak": [
+          "Website scores 32/100 in our audit",
+          "No online shop link on the homepage",
+          "No newsletter sign-up on the homepage"
+        ]
+      },
+      {
+        "id": "bq_mock2",
+        "name": "Fern & Fold",
+        "address": "88 Nassau Ave, Brooklyn",
+        "website": "https://example.com/fern",
+        "domain": "fernandfold.example",
+        "email": null,
+        "phone": null,
+        "instagram": null,
+        "status": "PLAN_READY",
+        "weak": [
+          "Website scores 18/100 in our audit",
+          "Not set up for phones",
+          "Only 22 reviews (simulated)"
+        ]
+      }
+    ],
+    "earlier": []
+  },
+  "details": {
+    "bq_mock1": {
+      "id": "bq_mock1",
+      "name": "Willow Thread",
+      "address": "212 Bedford Ave, Brooklyn",
+      "website": "https://example.com/willow",
+      "domain": "willowthread.example",
+      "phone": null,
+      "instagram": "@willowthread",
+      "status": "PLAN_READY",
+      "weak": [
+        "Website scores 32/100 in our audit"
+      ],
+      "reviews": {
+        "rating": 3.9,
+        "count": 25,
+        "simulated": true
+      },
+      "why": [
+        {
+          "weak": "Website scores 32/100 in our audit",
+          "focus": "c · website improvements below"
+        },
+        {
+          "weak": "No online shop link on the homepage",
+          "focus": "c · add a shoppable 'New arrivals' page"
+        },
+        {
+          "weak": "No newsletter sign-up on the homepage",
+          "focus": "b · newsletter welcome code"
+        },
+        {
+          "weak": "Rating 3.9★ (simulated)",
+          "focus": "b · review card with a small thank-you"
+        }
+      ],
+      "plan": {
+        "summary": "A shoppable lookbook, a newsletter code and one neighbour collaboration would put Willow Thread where its shoppers already look.",
+        "trend_gap": [
+          {
+            "trend": "butter yellow",
+            "type": "color",
+            "on_your_site": false,
+            "competitor_with_it": "Juno Atelier",
+            "why_it_matters": "The season's most searched colour"
+          },
+          {
+            "trend": "barrel-leg jeans",
+            "type": "design",
+            "on_your_site": false,
+            "competitor_with_it": "Hazel Supply",
+            "why_it_matters": "Students ask for it by name"
+          }
+        ],
+        "buying_behaviour": [
+          {
+            "persona": "Young professionals (25-34)",
+            "share": "38% (est.)",
+            "what_they_buy": "workwear-to-weekend pieces",
+            "how_they_find_shops": "Instagram + online",
+            "your_site_today": "No online shop link",
+            "lost_opportunity": "They browse at night and buy elsewhere"
+          },
+          {
+            "persona": "Students (18-24)",
+            "share": "27% (est.)",
+            "what_they_buy": "trend pieces under $50",
+            "how_they_find_shops": "TikTok + in store",
+            "your_site_today": "TikTok not linked",
+            "lost_opportunity": "They never see the new arrivals"
+          }
+        ],
+        "collaborations": [
+          {
+            "partner": "Crema Coffee",
+            "idea": "Saturday styling morning with coffee",
+            "example": "Shared 10% code for both shops"
+          }
+        ],
+        "discounts": [
+          {
+            "title": "Newsletter welcome",
+            "mechanic": "10% off the first order for signing up",
+            "example": "QR card by the till"
+          }
+        ],
+        "website_fashion": [
+          {
+            "finding": "No online shop link on the homepage",
+            "fix": "Add a 'New arrivals' shoppable lookbook",
+            "example": "Six looks, each linked to the pieces"
+          }
+        ],
+        "competitors_did": [
+          {
+            "competitor": "Juno Atelier",
+            "what": "Shoppable lookbook on the homepage",
+            "takeaway": "Show trends where shoppers look",
+            "impact": "+24% online orders in 6 weeks (simulated)"
+          }
+        ],
+        "first_30_days": [
+          "Week 1: newsletter sign-up + welcome code",
+          "Week 2: lookbook page",
+          "Week 3: bundle launch",
+          "Week 4: partner morning"
+        ]
+      },
+      "concepts": [],
+      "proposal_url": "#",
+      "approval_version": 1,
+      "outreach": {
+        "from": "Mitran <operator@example.com>",
+        "to": "hello@willowthread.example",
+        "subject": "A few ideas for Willow Thread",
+        "html": "<div style='font-family:Georgia,serif;padding:24px'><h2>A growth plan for Willow Thread</h2><p>Hi Willow Thread team, we put together a short plan for this month. The first month with us is $5.</p></div>",
+        "result": null,
+        "emailed_at": null,
+        "gmail_ready": true
+      },
+      "email": "hello@willowthread.example"
+    }
+  },
+  "clients": [
+    {
+      "id": "cl_mock",
+      "name": "Because Of Alice",
+      "address": "Brooklyn",
+      "website": "https://www.becauseofalice.com/",
+      "email": null,
+      "signed_at": "2026-11-07T20:00:00+00:00",
+      "plan": "$5 first month",
+      "real_paid": false,
+      "orders_90d": 19,
+      "revenue_90d": 1526,
+      "repeat_rate_pct": 63.2,
+      "reports": 2,
+      "monthly": [
+        {
+          "name": "2026-06",
+          "value": 2316
+        },
+        {
+          "name": "2026-07",
+          "value": 879
+        },
+        {
+          "name": "2026-08",
+          "value": 1046
+        },
+        {
+          "name": "2026-09",
+          "value": 435
+        },
+        {
+          "name": "2026-10",
+          "value": 172
+        },
+        {
+          "name": "2026-11",
+          "value": 128
+        }
+      ]
+    }
+  ],
+  "reports": [
+    {
+      "id": "rep_mock2",
+      "label": "Week of 2026-11-07",
+      "created": "2026-11-07T21:45:00+00:00",
+      "status": "sent",
+      "detail": "sent to operator (mock)",
+      "pdf_url": null
+    },
+    {
+      "id": "rep_mock1",
+      "label": "Week of 2026-10-31",
+      "created": "2026-11-07T21:44:00+00:00",
+      "status": "sent",
+      "detail": "sent to operator (mock)",
+      "pdf_url": null
+    }
+  ]
+}
